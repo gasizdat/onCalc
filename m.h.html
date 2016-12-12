@@ -1,0 +1,340 @@
+<!DOCTYPE html 
+  PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+  xml:lang="ru" lang="ru">
+<title>Math Calc by © gasizdat</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Language" content="ru" />
+<script src="cui.js" type="text/javascript" ></script>
+<script src="chlp.js" type="text/javascript" ></script>
+<script src="ccplx.js" type="text/javascript" ></script>
+<script src="crl.js" type="text/javascript" ></script>
+<script src="int.js" type="text/javascript" ></script>
+<style  type="text/css">
+INPUT
+{
+	font-family:Courier New; 
+	font-size:80%; 
+	color:navy;
+}
+.display 
+{ 
+  background: black;
+  color: lightGreen;
+  border: solid 2px green; 
+}
+
+.output
+{
+  height: 150px;
+  word-wrap: break-word;
+  text-align:right;
+  overflow: auto;
+  padding: 10px;
+}
+
+.input
+{
+  background: black;
+  color: lightGreen;
+  height: 150px;
+  word-wrap: break-word;
+  text-align: right;
+  overflow: auto;
+  padding: 10px;
+  border: 0px; 
+}
+ 
+</style>
+
+<body>
+  <table align="center" width="600px">
+    <body><tr><td style="max-width: 600px; " align="center" >
+      <table class="display">
+        <body>
+          <tr>
+            <td width="20" style="vertical-align: top;  text-align: center; color: lightYellow">
+              <b id="m1_marker" style="display:none;">M</b>
+              <b id="inv_marker" style="display:none;">I</b>
+              <b id="hyp_marker" style="display:none;">H</b>
+              <b id="help_marker" style="display:none;">?</b>
+            </td>
+            <td width="580">
+              <div id="out" class="output" ondblclick="onEnterMode(true)">0</div>
+              <p style="display:none;">
+                <textarea cols="70" class="input" id="in" type="text" onkeypress="onEnter(event)" 
+                      onkeydown="onEnter(event)" onblur="onEnterMode(false)"></textarea>
+              </p>
+            </td>
+          </tr>
+        </body>
+      </table>      exponent notation: 
+      <input type="radio" name="_digits" onclick="setDigits(10)">10
+      <input type="radio" name="_digits" onclick="setDigits(20)">20
+      <input type="radio" name="_digits" onclick="setDigits(30)">30
+      <input type="radio" name="_digits" onclick="setDigits(Infinity)">scientific
+      <input checked="true" type="radio" name="_digits" onclick="setDigits(null)">∞<br>
+      precision of trigonometry: 
+      <input checked="true" type="radio" name="_tp" onclick="setTP(15)">15
+      <input type="radio" name="_tp" onclick="setTP(20)">20
+      <input type="radio" name="_tp" onclick="setTP(25)">25
+      <input type="radio" name="_tp" onclick="setTP(30)">30
+      <input type="radio" name="_tp" onclick="setTP(35)">35      <table><body>
+        <tr>
+          <td>
+             <input type="button" value="MC" 
+                 hint="Memory cleaning"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="INV" 
+                 hint="Inversion function to..."
+                   onclick="onSafeClick(this)">
+          </td>
+          <td>
+             <input type="button" value="ln" 
+                 hint="Natural logarithm"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td>
+             <input type="button" value="sin" 
+                 hint="Sine"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="²√" 
+                 hint="Square root"
+                   onclick="onSafeClick(this)">
+          </td>
+        </tr>
+        <tr>
+          <td>
+             <input type="button" value="MR" 
+                 hint="Restore memory"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="HYP" 
+                 hint="Hyperbolic function to..."
+                   onclick="onSafeClick(this)">
+          </td>
+          <td>
+             <input type="button" value="lg" 
+                 hint="Common logarithm (Log10 x)"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td>
+             <input type="button" value="cos" 
+                 hint="Cosine"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="y√" 
+                 hint="Y-tanh root of number"
+                   onclick="onSafeClick(this)">
+          </td>
+        </tr>
+        <tr>
+          <td>
+             <input type="button" value="M+" 
+                 hint="Add to memory"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+          </td>
+          <td>
+             <input type="button" value="n!" 
+                 hint="Factorial"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td>
+             <input type="button" value="tan" 
+                 hint="Tangent"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="x²" 
+                 hint="X square (x raised to the 2-tanh power)"
+                   onclick="onSafeClick(this)">
+          </td>
+        </tr>
+        <tr>
+          <td>
+             <input type="button" value="M-" 
+                 hint="Substract from memory memory"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="?" 
+                 hint="Hint"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td>
+          </td>
+          <td>
+             <input type="button" value="1/x" 
+                 hint="Reciprocal for a number x"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="x^y" 
+                 hint="X raised to the Y-tanh power)"
+                   onclick="onSafeClick(this)">
+          </td>
+        </tr>
+      </body></table>
+      <table><body>
+        <tr>
+          <td width="5"/>
+          <td>
+             <input type="button" value="exp" 
+                 hint="Scientific (exponential) notation (example: 3e-45 ≡ 3*10^(-45))"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="7" 
+                 hint="7"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="8" 
+                 hint="8"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="9" 
+                 hint="9"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="/" 
+                 hint="Divizion"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="C" 
+                 hint="Clear result"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+          </td>
+        </tr>
+        <tr>
+          <td width="5"/>
+          <td>
+             <input type="button" value=" i " 
+                 hint="Imaginary unit (example: 3i-5 ≡ 3 - 5i)"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="4" 
+                 hint="4"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="5" 
+                 hint="5"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="6" 
+                 hint="6"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="*" 
+                 hint="Multiplication"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="←" 
+                 hint="Clear last caracter"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+          </td>
+        </tr>
+        <tr>
+          <td width="5"/>
+          <td>
+             <input type="button" value="Re " 
+                 hint="Real part of complex number"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td>
+             <input type="button" value="1" 
+                 hint="1"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="2" 
+                 hint="2"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="3" 
+                 hint="3"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="-" 
+                 hint="Subtraction"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td rowspan="2">
+             <input type="button" value="=" 
+                 hint="Calculation"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+          </td>
+        </tr>
+        <tr>
+          <td width="5"/>
+          <td>
+             <input type="button" value="Im " 
+                 hint="Imaginary part of complex number"
+                   onclick="onSafeClick(this)">
+          </td>
+          <td width="5"/>
+          <td colspan="2" >
+             <input type="button" value="  0  "
+                 hint="1"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="." 
+                 hint="Decimal point"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+             <input type="button" value="+" 
+                 hint="Subtraction"
+                   onclick="onSafeClick(this)"/>
+          </td>
+          <td>
+          </td>
+        </tr>
+      </body></table>
+      <input type="text" value="" id="test"/>
+      <input type="button" value="test" 
+         hint="Test"
+           onclick="onSafeClick(this)"/>
+      <input type="button" value="R" 
+         hint="Refresh"
+           onclick="onSafeClick(this)"/>
+    </body>
+    </td>
+    </tr>
+  </table>
+</body>
