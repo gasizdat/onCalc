@@ -1,14 +1,8 @@
-function testLongInt()
-{
-    let i1 = new onCalc.LongInt(100);
-    let i2 = new onCalc.LongInt("100500");
-} 
-
 namespace onCalc
 {
-    class Preprocessor
+    class LongIntHelper
     {
-        private _splitter: RegExp;
+        private readonly _splitter: RegExp;
         constructor()
         {
 /* Evaluation of precision of the number is not to lose accuracy of calculations.
@@ -34,8 +28,8 @@ namespace onCalc
             this._splitter = new RegExp(".{1," + this.digitLength + "}", "g");
         }
 
-        public digitAbs: number; //Absolute value of LongInt digit.
-        public digitLength: number; //String length, for representation one digit (use in parse method)
+        public readonly digitAbs: number; //Absolute value of LongInt digit.
+        public readonly digitLength: number; //String length, for representation one digit (use in parse method)
         public tokenize(value: string): Array<string>
         {
             let head_size = value.length % this.digitLength;
@@ -50,17 +44,18 @@ namespace onCalc
             }
             return ret;
         }
-        public static isNegative(value: string) : boolean
+        public isNegative(value: string) : boolean
         {
             return value.charAt(0) === '-';
         }
     }
 
-    const _preprocessor = new Preprocessor();
     type ValueType = string | number;
     //The BCD-like "unlimited" long integer number
+    //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
     export class LongInt
     {
+        private static readonly _helper = new LongIntHelper();
         private _negative: boolean;
         private _data: Array<number>;
 
@@ -74,17 +69,17 @@ namespace onCalc
         {
             if(!value.length)
                 this._initializeNumber(0);
-            if(value.length <= _preprocessor.digitLength)
+            if(value.length <= LongInt._helper.digitLength)
             {
                 this._initializeNumber(parseInt(value));
             }
             else
             {
                 let data: Array<number> = null;
-                this._negative = Preprocessor.isNegative(value);
+                this._negative = LongInt._helper.isNegative(value);
                 if (this._negative)
                     value = value.slice(1);
-                for (let token of _preprocessor.tokenize(value))
+                for (let token of LongInt._helper.tokenize(value))
                 {
                     let digit = parseFloat(token);
                     if (digit && !data)
@@ -97,7 +92,7 @@ namespace onCalc
                     }   
                 }
                 if (data)
-                    this._data=data.reverse();
+                    this._data = data.reverse();
             }
         }
 
@@ -121,10 +116,58 @@ namespace onCalc
             }
         }
 
-        public constructor(value?: ValueType)
+        private _absoluteGreater(value: LongInt, or_equal: boolean): boolean
+        {
+            let s = this.size();
+            let same_size = s === value.size(); 
+            if (same_size)
+            {
+                for (s--; s >= 0; s--)
+                {
+                    let ld = this._data[s];
+                    let rd = value._data[s];
+                    if (ld !== rd)
+                    {
+                        return ld > rd;   
+                    }
+                }
+                return or_equal; //All digits equals
+            }
+            else
+            {
+                return s > value.size();
+            }
+        }
+
+        private _absoluteLess(value: LongInt, or_equal: boolean): boolean
+        {
+            let s = this.size();
+            let same_size = s === value.size(); 
+            if (same_size)
+            {
+                for (s--; s >= 0; s--)
+                {
+                    let ld = this._data[s];
+                    let rd = value._data[s];
+                    if (ld !== rd)
+                    {
+                        return ld < rd;   
+                    }
+                }                
+                return or_equal; //All digits equals
+            }
+            else
+            {
+                return s < value.size();
+            }
+        }
+
+        public constructor(readonly value?: ValueType)
         {
             this._initialize(value);
         }
+
+        public readonly size = () => this._data.length;
 
         public assigned(value?: ValueType) : LongInt
         {
@@ -132,20 +175,81 @@ namespace onCalc
             return this;
         }
 
-        public parse(value: string) : void
+        public equal(value: LongInt): boolean
         {
-            this._initialize(value);
+            return this._negative === value._negative && 
+                   this.size() === value.size() &&
+                   this._data.every((d, i)=> d === value._data[i]);
+        }
+
+        public greater(value: LongInt): boolean
+        {
+            if (this._negative === value._negative)
+            {
+                return this._negative ? 
+                       this._absoluteLess(value, false) :
+                       this._absoluteGreater(value, false);
+            }
+            else
+            {
+                return !value._negative;
+            }
+        }
+
+        public greaterOrEqual(value: LongInt): boolean
+        {
+            if (this._negative === value._negative)
+            {
+                return this._negative ? 
+                       this._absoluteLess(value, true) :
+                       this._absoluteGreater(value, true);
+            }
+            else
+            {
+                return !value._negative;
+            }
+        }
+
+        public less(value: LongInt): boolean
+        {
+            if (this._negative === value._negative)
+            {
+                return this._negative ? 
+                       this._absoluteGreater(value, false) :
+                       this._absoluteLess(value, false);
+            }
+            else
+            {
+                return value._negative;
+            }
+        }
+        
+        public lessOrEqual(value: LongInt): boolean
+        {
+            if (this._negative === value._negative)
+            {
+                return this._negative ? 
+                       this._absoluteGreater(value, true) :
+                       this._absoluteLess(value, true);
+            }
+            else
+            {
+                return value._negative;
+            }
         }
     }
     function x()
     {
-        let i = new LongInt("1234567890");
+        let i = new LongInt(100);
+        i = new LongInt("100500"); 
+        i = new LongInt("1234567890");
         i = new LongInt("-1234567890");
         i = new LongInt("12345678909876543210");
         i = new LongInt("-12345678909876543210");
         i = new LongInt("-00000000005");
         i = new LongInt("00000000000000000500");
         
+        let g = new LongInt('-1234567891').greater(new LongInt("-1234567890"));
     }
     x();
 }
