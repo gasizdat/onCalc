@@ -22,6 +22,12 @@ var onCalc;
                 this.digitAbs *= 10;
             //Prepare regexp for spliting string value to tokens 
             this._splitter = new RegExp(".{1," + this.digitLength + "}", "g");
+            var zeros = "";
+            this.leadingZeros = new Array(this.digitLength + 1);
+            for (var i = 0; i <= this.digitLength; i++) {
+                this.leadingZeros[i] = zeros;
+                zeros += "0";
+            }
         }
         LongIntHelper.prototype.tokenize = function (value) {
             var head_size = value.length % this.digitLength;
@@ -135,7 +141,7 @@ var onCalc;
                     var quot = Math.floor(v / LongInt._helper.digitAbs);
                     a[i] = mod;
                     i++;
-                    if (a.length == i) {
+                    if (a.length === i) {
                         a.push(quot);
                     }
                     else {
@@ -212,22 +218,23 @@ var onCalc;
             this._bcdNormalize();
             return this;
         };
+        LongInt.prototype.toString = function () {
+            var ret = "";
+            this._data.forEach(function (value, index, array) {
+                var digit = value.toString();
+                var zeros_count = LongInt._helper.digitLength - digit.length;
+                if (zeros_count && index < (array.length - 1)) {
+                    ret = LongInt._helper.leadingZeros[zeros_count] + value + ret;
+                }
+                else {
+                    ret = value + ret;
+                }
+            });
+            return ret;
+        };
         return LongInt;
     }());
     LongInt._helper = new LongIntHelper();
     onCalc.LongInt = LongInt;
-    function x() {
-        var i = new LongInt(100);
-        i = new LongInt("100500");
-        i = new LongInt("1234567890");
-        i = new LongInt("-1234567890");
-        i = new LongInt("12345678909876543210");
-        i = new LongInt("-12345678909876543210");
-        i = new LongInt("-00000000005");
-        i = new LongInt("00000000000000000500");
-        var g = new LongInt('-1235467891').equal(new LongInt("-1234567891"));
-        var li = new LongInt('102030405060708090').add(new LongInt("112233445566778899"));
-    }
-    x();
 })(onCalc || (onCalc = {}));
 //# sourceMappingURL=LongInt.js.map

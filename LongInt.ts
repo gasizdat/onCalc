@@ -1,4 +1,4 @@
-namespace onCalc
+module onCalc
 {
     class LongIntHelper
     {
@@ -26,8 +26,16 @@ namespace onCalc
                 this.digitAbs *= 10;
             //Prepare regexp for spliting string value to tokens 
             this._splitter = new RegExp(".{1," + this.digitLength + "}", "g");
+            let zeros: string = "";
+            this.leadingZeros = new Array<string>(this.digitLength + 1);
+            for(let i = 0; i <= this.digitLength; i++)
+            {
+                this.leadingZeros[i] = zeros;
+                zeros += "0";
+            }
         }
 
+        public readonly leadingZeros: string[];
         public readonly digitAbs: number; //Absolute value of LongInt digit.
         public readonly digitLength: number; //String length, for representation one digit (use in parse method)
         public tokenize(value: string): Array<string>
@@ -173,7 +181,7 @@ namespace onCalc
                     let quot = Math.floor(v / LongInt._helper.digitAbs);
                     a[i] = mod;
                     i++;
-                    if (a.length == i)
+                    if (a.length === i)
                     {
                         a.push(quot);
                     }
@@ -285,23 +293,26 @@ namespace onCalc
             }
             this._bcdNormalize();
             return this;
+        }
+
+        public toString(): string
+        {
+            let ret: string = "";
+            this._data.forEach((value, index, array)=>
+            {
+                let digit = value.toString();
+                let zeros_count = LongInt._helper.digitLength - digit.length;
+                if (zeros_count && index < (array.length - 1))
+                {
+                    ret = LongInt._helper.leadingZeros[zeros_count] + value + ret;
+                }
+                else
+                {
+                    ret = value + ret;
+                }
+            });
+            return ret;
         } 
     }
-
-    function x()
-    {
-        let i = new LongInt(100);
-        i = new LongInt("100500"); 
-        i = new LongInt("1234567890");
-        i = new LongInt("-1234567890");
-        i = new LongInt("12345678909876543210");
-        i = new LongInt("-12345678909876543210");
-        i = new LongInt("-00000000005");
-        i = new LongInt("00000000000000000500");
-        
-        let g = new LongInt('-1235467891').equal(new LongInt("-1234567891"));
-
-        let li = new LongInt('102030405060708090').add(new LongInt("112233445566778899"));
-    }
-    x();
 }
+
