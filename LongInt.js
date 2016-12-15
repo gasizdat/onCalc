@@ -128,6 +128,22 @@ var onCalc;
                 return s < value.size();
             }
         };
+        LongInt.prototype._bcdNormalize = function () {
+            this._data.forEach(function (v, i, a) {
+                if (v >= LongInt._helper.digitAbs) {
+                    var mod = v % LongInt._helper.digitAbs;
+                    var quot = Math.floor(v / LongInt._helper.digitAbs);
+                    a[i] = mod;
+                    i++;
+                    if (a.length == i) {
+                        a.push(quot);
+                    }
+                    else {
+                        a[i] += quot;
+                    }
+                }
+            });
+        };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
             return this;
@@ -136,6 +152,11 @@ var onCalc;
             return this._negative === value._negative &&
                 this.size() === value.size() &&
                 this._data.every(function (d, i) { return d === value._data[i]; });
+        };
+        LongInt.prototype.notequal = function (value) {
+            return this._negative !== value._negative ||
+                this.size() !== value.size() &&
+                    this._data.some(function (d, i) { return d !== value._data[i]; });
         };
         LongInt.prototype.greater = function (value) {
             if (this._negative === value._negative) {
@@ -177,9 +198,23 @@ var onCalc;
                 return value._negative;
             }
         };
-        LongInt._helper = new LongIntHelper();
+        LongInt.prototype.add = function (value) {
+            var s = this.size();
+            var max_s = Math.max(s, value.size());
+            for (var i = 0; i < s; i++) {
+                if (s <= i) {
+                    this._data.push(value._data[i]);
+                }
+                else {
+                    this._data[i] += value._data[i];
+                }
+            }
+            this._bcdNormalize();
+            return this;
+        };
         return LongInt;
     }());
+    LongInt._helper = new LongIntHelper();
     onCalc.LongInt = LongInt;
     function x() {
         var i = new LongInt(100);
@@ -190,7 +225,8 @@ var onCalc;
         i = new LongInt("-12345678909876543210");
         i = new LongInt("-00000000005");
         i = new LongInt("00000000000000000500");
-        var g = new LongInt('-1234567891').greater(new LongInt("-1234567890"));
+        var g = new LongInt('-1235467891').equal(new LongInt("-1234567891"));
+        var li = new LongInt('102030405060708090').add(new LongInt("112233445566778899"));
     }
     x();
 })(onCalc || (onCalc = {}));

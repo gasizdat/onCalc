@@ -65,6 +65,7 @@ namespace onCalc
             this._data = new Array<number>(1);
             this._data[0] = Math.abs(value);
         }
+
         private _initializeString(value: string)
         {
             if(!value.length)
@@ -161,6 +162,28 @@ namespace onCalc
                 return s < value.size();
             }
         }
+        
+        private _bcdNormalize() : void
+        {
+            this._data.forEach((v: number, i: number, a: Array<number>) =>
+            {
+                if (v >= LongInt._helper.digitAbs)
+                {
+                    let mod = v % LongInt._helper.digitAbs;
+                    let quot = Math.floor(v / LongInt._helper.digitAbs);
+                    a[i] = mod;
+                    i++;
+                    if (a.length == i)
+                    {
+                        a.push(quot);
+                    }
+                    else
+                    {
+                        a[i] += quot;
+                    }
+                }
+            });
+        }
 
         public constructor(readonly value?: ValueType)
         {
@@ -180,6 +203,13 @@ namespace onCalc
             return this._negative === value._negative && 
                    this.size() === value.size() &&
                    this._data.every((d, i)=> d === value._data[i]);
+        }
+
+        public notequal(value: LongInt): boolean
+        {
+            return this._negative !== value._negative || 
+                   this.size() !== value.size() &&
+                   this._data.some((d, i)=> d !== value._data[i]);
         }
 
         public greater(value: LongInt): boolean
@@ -237,7 +267,27 @@ namespace onCalc
                 return value._negative;
             }
         }
+
+        public add(value: LongInt): LongInt
+        {
+            let s = this.size();
+            let max_s = Math.max(s, value.size());
+            for (let i = 0; i < s; i++)
+            {
+                if (s <= i)
+                {
+                    this._data.push(value._data[i]);
+                }
+                else
+                {
+                    this._data[i] += value._data[i];
+                }
+            }
+            this._bcdNormalize();
+            return this;
+        } 
     }
+
     function x()
     {
         let i = new LongInt(100);
@@ -249,7 +299,9 @@ namespace onCalc
         i = new LongInt("-00000000005");
         i = new LongInt("00000000000000000500");
         
-        let g = new LongInt('-1234567891').greater(new LongInt("-1234567890"));
+        let g = new LongInt('-1235467891').equal(new LongInt("-1234567891"));
+
+        let li = new LongInt('102030405060708090').add(new LongInt("112233445566778899"));
     }
     x();
 }
