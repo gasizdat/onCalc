@@ -35,6 +35,7 @@ module onCalc
             }
         }
 
+        public readonly negativeSign = "-";
         public readonly leadingZeros: string[];
         public readonly digitAbs: number; //Absolute value of LongInt digit.
         public readonly digitLength: number; //String length, for representation one digit (use in parse method)
@@ -54,11 +55,11 @@ module onCalc
         }
         public isNegative(value: string) : boolean
         {
-            return value.charAt(0) === '-';
+            return value.charAt(0) === this.negativeSign;
         }
     }
 
-    type ValueType = string | number | LongInt;
+    export type ValueType = string | number | LongInt;
     //The BCD-like "unlimited" long integer number
     //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
     export class LongInt
@@ -72,6 +73,8 @@ module onCalc
             this._negative = value < 0;
             this._data = new Array<number>(1);
             this._data[0] = Math.abs(value);
+            if (this._data[0] >= LongInt._helper.digitAbs)
+                this._bcdNormalize();
         }
 
         private _initializeString(value: string)
@@ -107,15 +110,16 @@ module onCalc
 
         private _initialize(value?: ValueType)
         {
+            let v_type = typeof(value);
             if (!value)
             {
                 this._initializeNumber(0);
             }
-            else if (value instanceof String)
+            else if (v_type === "string")
             {
                 this._initializeString(<string>value);
             }
-            else if (value instanceof Number)
+            else if (v_type === "number")
             {
                 this._initializeNumber(<number>value);
             }
@@ -178,24 +182,26 @@ module onCalc
         
         private _bcdNormalize() : void
         {
-            this._data.forEach((v: number, i: number, a: Array<number>) =>
+            let d = this._data;
+            for (let i = 0; i < d.length; i++)
             {
+                let v = d[i];
                 if (v >= LongInt._helper.digitAbs)
                 {
                     let mod = v % LongInt._helper.digitAbs;
                     let quot = Math.floor(v / LongInt._helper.digitAbs);
-                    a[i] = mod;
-                    i++;
-                    if (a.length === i)
+                    d[i] = mod;
+                    let j = i + 1;
+                    if (j === d.length)
                     {
-                        a.push(quot);
+                        d.push(quot);
                     }
                     else
                     {
-                        a[i] += quot;
+                        d[j] += quot;
                     }
                 }
-            });
+            }
         }
 
         private _absoluteAdd(value: LongInt): void
@@ -351,14 +357,14 @@ module onCalc
                 let zeros_count = LongInt._helper.digitLength - digit.length;
                 if (zeros_count && index < (array.length - 1))
                 {
-                    ret = LongInt._helper.leadingZeros[zeros_count] + value + ret;
+                    ret = LongInt._helper.leadingZeros[zeros_count] + digit + ret;
                 }
                 else
                 {
-                    ret = value + ret;
+                    ret = digit + ret;
                 }
             });
-            return ret;
+            return this._negative ? (LongInt._helper.negativeSign + ret) : ret;
         } 
     }
 }

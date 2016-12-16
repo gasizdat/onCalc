@@ -2,29 +2,55 @@
 
 module Tests
 {
+    const LongInt = (value: onCalc.ValueType) => new onCalc.LongInt(value);
     export class UnitTests
     {
-        private static EXPECT_EQ<T>(expected: string|onCalc.LongInt, actual: string|onCalc.LongInt): void
+        private static EXPECT_EQ<T>(expected: string|onCalc.LongInt|number, actual: string|onCalc.LongInt|number): void
         {
             let assert: boolean;
-            if (typeof(expected) === "string")
+            switch(typeof(expected))
             {
-                assert = <string>expected === <string>actual;
-            }
-            else
-            {
-                assert = expected.equal(<onCalc.LongInt>actual);
+                case "string":
+                    assert = <string>expected === <string>actual;
+                    break;
+                case "number":
+                    assert = expected === actual;
+                    break;
+                default: 
+                    assert = (<onCalc.LongInt>expected).equal(<onCalc.LongInt>actual);
+                    break;
             }
             if(!assert)
             {
                 throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
             }
         }
+
+        private static PositiveNumberToString(): void
+        {
+            let i = LongInt(0);
+            UnitTests.EXPECT_EQ("0", i.toString());
+            UnitTests.EXPECT_EQ(1, i.size());
+            i = LongInt(100500);
+            UnitTests.EXPECT_EQ("100500", i.toString());
+            UnitTests.EXPECT_EQ(1, i.size());
+            i = LongInt(10000020000000);
+            UnitTests.EXPECT_EQ("10000020000000", i.toString());
+            UnitTests.EXPECT_EQ(2, i.size());
+            i = LongInt(9876543210123456);
+            UnitTests.EXPECT_EQ("9876543210123456", i.toString());
+            UnitTests.EXPECT_EQ(3, i.size());
+        }
+        private static NegativeNumberToString(): void
+        {
+            UnitTests.EXPECT_EQ("-10", new onCalc.LongInt(-10).toString());
+            UnitTests.EXPECT_EQ("-100500", new onCalc.LongInt(-100500).toString());
+            UnitTests.EXPECT_EQ("-9876543210123456", new onCalc.LongInt(-9876543210123456).toString());
+        }
         private static Add(): void
         {
             //99009900990099009900 + 998877665544332211 = 100008778655643342111
             let result = new onCalc.LongInt("99009900990099009900").add(new onCalc.LongInt("998877665544332211"));
-            UnitTests.EXPECT_EQ(new onCalc.LongInt("100008778655643342111"), result);
             UnitTests.EXPECT_EQ("100008778655643342111", result.toString());
         }
 
@@ -32,6 +58,8 @@ module Tests
         {
             try
             {
+                UnitTests.PositiveNumberToString();
+                UnitTests.NegativeNumberToString();
                 UnitTests.Add();
                 alert("ALL TESTS PASSED");
             }

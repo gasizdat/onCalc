@@ -2,6 +2,7 @@ var onCalc;
 (function (onCalc) {
     var LongIntHelper = (function () {
         function LongIntHelper() {
+            this.negativeSign = "-";
             /* Evaluation of precision of the number is not to lose accuracy of calculations.
                It must be carried out the system of equations:
              ╓ N = 10^k
@@ -41,7 +42,7 @@ var onCalc;
             return ret;
         };
         LongIntHelper.prototype.isNegative = function (value) {
-            return value.charAt(0) === '-';
+            return value.charAt(0) === this.negativeSign;
         };
         return LongIntHelper;
     }());
@@ -58,6 +59,8 @@ var onCalc;
             this._negative = value < 0;
             this._data = new Array(1);
             this._data[0] = Math.abs(value);
+            if (this._data[0] >= LongInt._helper.digitAbs)
+                this._bcdNormalize();
         };
         LongInt.prototype._initializeString = function (value) {
             if (!value.length)
@@ -85,13 +88,14 @@ var onCalc;
             }
         };
         LongInt.prototype._initialize = function (value) {
+            var v_type = typeof (value);
             if (!value) {
                 this._initializeNumber(0);
             }
-            else if (value instanceof String) {
+            else if (v_type === "string") {
                 this._initializeString(value);
             }
-            else if (value instanceof Number) {
+            else if (v_type === "number") {
                 this._initializeNumber(value);
             }
             else if (value instanceof LongInt) {
@@ -137,20 +141,22 @@ var onCalc;
             }
         };
         LongInt.prototype._bcdNormalize = function () {
-            this._data.forEach(function (v, i, a) {
+            var d = this._data;
+            for (var i = 0; i < d.length; i++) {
+                var v = d[i];
                 if (v >= LongInt._helper.digitAbs) {
                     var mod = v % LongInt._helper.digitAbs;
                     var quot = Math.floor(v / LongInt._helper.digitAbs);
-                    a[i] = mod;
-                    i++;
-                    if (a.length === i) {
-                        a.push(quot);
+                    d[i] = mod;
+                    var j = i + 1;
+                    if (j === d.length) {
+                        d.push(quot);
                     }
                     else {
-                        a[i] += quot;
+                        d[j] += quot;
                     }
                 }
-            });
+            }
         };
         LongInt.prototype._absoluteAdd = function (value) {
             var s = this.size();
@@ -164,6 +170,10 @@ var onCalc;
                 }
             }
             this._bcdNormalize();
+        };
+        LongInt.prototype._absoluteSubLessOrEqualValue = function (value) {
+            //! Value must be less or equal than this !
+            throw Error("Not yet implemented");
         };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
@@ -229,13 +239,21 @@ var onCalc;
             }
         };
         LongInt.prototype.sub = function (value) {
-            if (!this._negative && value._negative) {
-                return this.add(value);
-            }
-            else if (this._negative && !value._negative) {
+            if (this._negative !== value._negative) {
+                //(-2) - (+3) = -(2 + 3)
+                //(+2) - (-3) = +(2 + 3)
                 this._absoluteAdd(value);
-                this._negative = false;
                 return this;
+            }
+            else if (this._negative) {
+                var value_copy = new LongInt(value);
+                value_copy._negative = false;
+                value_copy._absoluteSubLessOrEqualValue(this);
+                this._data = value_copy._data; //reference copy
+                this._negative = value_copy._negative;
+                return this;
+            }
+            else {
             }
         };
         LongInt.prototype.toString = function () {
@@ -244,13 +262,13 @@ var onCalc;
                 var digit = value.toString();
                 var zeros_count = LongInt._helper.digitLength - digit.length;
                 if (zeros_count && index < (array.length - 1)) {
-                    ret = LongInt._helper.leadingZeros[zeros_count] + value + ret;
+                    ret = LongInt._helper.leadingZeros[zeros_count] + digit + ret;
                 }
                 else {
-                    ret = value + ret;
+                    ret = digit + ret;
                 }
             });
-            return ret;
+            return this._negative ? (LongInt._helper.negativeSign + ret) : ret;
         };
         return LongInt;
     }());
