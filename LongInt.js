@@ -53,6 +53,7 @@ var onCalc;
             var _this = this;
             this.value = value;
             this.size = function () { return _this._data.length; };
+            this.negative = function () { return _this._negative; };
             this._initialize(value);
         }
         LongInt.prototype._initializeNumber = function (value) {

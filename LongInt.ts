@@ -235,6 +235,8 @@ module onCalc
 
         public readonly size = () => this._data.length;
 
+        public readonly negative = () => this._negative;
+
         public assigned(value?: ValueType) : LongInt
         {
             this._initialize(value);
