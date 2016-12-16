@@ -58,7 +58,7 @@ module onCalc
         }
     }
 
-    type ValueType = string | number;
+    type ValueType = string | number | LongInt;
     //The BCD-like "unlimited" long integer number
     //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
     export class LongInt
@@ -107,21 +107,26 @@ module onCalc
 
         private _initialize(value?: ValueType)
         {
-            if(!value)
-                this._initializeNumber(0);
-            else 
+            if (!value)
             {
-                switch(typeof(value))
-                {
-                    case "string":
-                        this._initializeString(<string>value);
-                        break;
-                    case "number":
-                        this._initializeNumber(<number>value);
-                        break;
-                    default:
-                        throw new Error("Unsupported value type " + typeof(value));
-                }
+                this._initializeNumber(0);
+            }
+            else if (value instanceof String)
+            {
+                this._initializeString(<string>value);
+            }
+            else if (value instanceof Number)
+            {
+                this._initializeNumber(<number>value);
+            }
+            else if (value instanceof LongInt)
+            {
+                this._negative = value._negative;
+                this._data = value._data.slice(0);
+            }
+            else
+            {
+                throw new Error("Unsupported value type " + typeof(value));
             }
         }
 
@@ -191,6 +196,30 @@ module onCalc
                     }
                 }
             });
+        }
+
+        private _absoluteAdd(value: LongInt): void
+        {
+            let s = this.size();
+            let max_s = Math.max(s, value.size());
+            for (let i = 0; i < s; i++)
+            {
+                if (s <= i)
+                {
+                    this._data.push(value._data[i]);
+                }
+                else
+                {
+                    this._data[i] += value._data[i];
+                }
+            }
+            this._bcdNormalize();
+        }
+
+        private _absoluteSubLessOrEqualValue(value: LongInt): void
+        {
+            //! Value must be less or equal than this !
+            throw Error("Not yet implemented");
         }
 
         public constructor(readonly value?: ValueType)
@@ -278,21 +307,39 @@ module onCalc
 
         public add(value: LongInt): LongInt
         {
-            let s = this.size();
-            let max_s = Math.max(s, value.size());
-            for (let i = 0; i < s; i++)
+            if (this._negative === value._negative)
             {
-                if (s <= i)
-                {
-                    this._data.push(value._data[i]);
-                }
-                else
-                {
-                    this._data[i] += value._data[i];
-                }
+                this._absoluteAdd(value);            
+                return this;
             }
-            this._bcdNormalize();
-            return this;
+            else
+            {
+                return this.sub(value);
+            }
+        }
+
+        public sub(value: LongInt): LongInt
+        {
+            if (this._negative !== value._negative)
+            {
+                //(-2) - (+3) = -(2 + 3)
+                //(+2) - (-3) = +(2 + 3)
+                this._absoluteAdd(value);               
+                return this; 
+            }
+            else if (this._negative) //both negative
+            {
+                let value_copy = new LongInt(value);
+                value_copy._negative = false;
+                value_copy._absoluteSubLessOrEqualValue(this);
+                this._data = value_copy._data; //reference copy
+                this._negative = value_copy._negative;
+                return this;
+            }
+            else //both positive
+            {
+
+            }
         }
 
         public toString(): string

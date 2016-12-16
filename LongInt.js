@@ -85,19 +85,21 @@ var onCalc;
             }
         };
         LongInt.prototype._initialize = function (value) {
-            if (!value)
+            if (!value) {
                 this._initializeNumber(0);
+            }
+            else if (value instanceof String) {
+                this._initializeString(value);
+            }
+            else if (value instanceof Number) {
+                this._initializeNumber(value);
+            }
+            else if (value instanceof LongInt) {
+                this._negative = value._negative;
+                this._data = value._data.slice(0);
+            }
             else {
-                switch (typeof (value)) {
-                    case "string":
-                        this._initializeString(value);
-                        break;
-                    case "number":
-                        this._initializeNumber(value);
-                        break;
-                    default:
-                        throw new Error("Unsupported value type " + typeof (value));
-                }
+                throw new Error("Unsupported value type " + typeof (value));
             }
         };
         LongInt.prototype._absoluteGreater = function (value, or_equal) {
@@ -149,6 +151,19 @@ var onCalc;
                     }
                 }
             });
+        };
+        LongInt.prototype._absoluteAdd = function (value) {
+            var s = this.size();
+            var max_s = Math.max(s, value.size());
+            for (var i = 0; i < s; i++) {
+                if (s <= i) {
+                    this._data.push(value._data[i]);
+                }
+                else {
+                    this._data[i] += value._data[i];
+                }
+            }
+            this._bcdNormalize();
         };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
@@ -205,18 +220,23 @@ var onCalc;
             }
         };
         LongInt.prototype.add = function (value) {
-            var s = this.size();
-            var max_s = Math.max(s, value.size());
-            for (var i = 0; i < s; i++) {
-                if (s <= i) {
-                    this._data.push(value._data[i]);
-                }
-                else {
-                    this._data[i] += value._data[i];
-                }
+            if (this._negative === value._negative) {
+                this._absoluteAdd(value);
+                return this;
             }
-            this._bcdNormalize();
-            return this;
+            else {
+                return this.sub(value);
+            }
+        };
+        LongInt.prototype.sub = function (value) {
+            if (!this._negative && value._negative) {
+                return this.add(value);
+            }
+            else if (this._negative && !value._negative) {
+                this._absoluteAdd(value);
+                this._negative = false;
+                return this;
+            }
         };
         LongInt.prototype.toString = function () {
             var ret = "";
