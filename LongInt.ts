@@ -295,7 +295,7 @@ module onCalc
             }
             else
             {
-                return value._negative;
+                return this._negative;
             }
         }
         
@@ -309,7 +309,7 @@ module onCalc
             }
             else
             {
-                return value._negative;
+                return this._negative;
             }
         }
 

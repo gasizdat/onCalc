@@ -217,7 +217,7 @@ var onCalc;
                     this._absoluteLess(value, false);
             }
             else {
-                return value._negative;
+                return this._negative;
             }
         };
         LongInt.prototype.lessOrEqual = function (value) {
@@ -227,7 +227,7 @@ var onCalc;
                     this._absoluteLess(value, true);
             }
             else {
-                return value._negative;
+                return this._negative;
             }
         };
         LongInt.prototype.add = function (value) {
