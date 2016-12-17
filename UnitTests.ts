@@ -251,6 +251,10 @@ module Tests
     {
         try
         {
+            let x = new onCalc.LongInt("123456789123");
+            let y = new onCalc.LongInt("123456789122");
+            x.sub(y);
+            
             let positive = new AnySignUnitTests(false);
             positive.numberToString();
             positive.equalNumberAndStringConstruction();

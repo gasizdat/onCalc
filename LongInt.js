@@ -174,7 +174,29 @@ var onCalc;
         };
         LongInt.prototype._absoluteSubLessOrEqualValue = function (value) {
             //! Value must be less or equal than this !
-            throw Error("Not yet implemented");
+            var s = this.size() - 1;
+            var vs = value.size();
+            for (var i = 0; i <= s; i++) {
+                if (i < vs) {
+                    this._data[i] -= value._data[i];
+                    if (this._data[i] < 0) {
+                        this._data[i] += LongInt._helper.digitAbs;
+                        this._data[i + 1] -= 1;
+                    }
+                }
+                else
+                    break;
+            }
+            while (s >= 0) {
+                if (this._data[s]) {
+                    if (s !== (this.size() - 1))
+                        this._data = this._data.slice(0, s + 1);
+                    break;
+                }
+                s--;
+            }
+            if (s < 0)
+                this._initialize(0);
         };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
@@ -255,6 +277,13 @@ var onCalc;
                 return this;
             }
             else {
+                if (this.less(value)) {
+                    var tmp_data = value._data;
+                    value = this;
+                    this._data = tmp_data;
+                    this._negative = true;
+                }
+                this._absoluteSubLessOrEqualValue(value);
             }
         };
         LongInt.prototype.toString = function () {

@@ -225,7 +225,34 @@ module onCalc
         private _absoluteSubLessOrEqualValue(value: LongInt): void
         {
             //! Value must be less or equal than this !
-            throw Error("Not yet implemented");
+            let s = this.size() - 1;
+            let vs = value.size();
+            for(let i = 0; i <= s; i++)
+            {
+                if (i < vs)
+                {
+                    this._data[i] -= value._data[i];
+                    if (this._data[i] < 0)
+                    {
+                        this._data[i] += LongInt._helper.digitAbs;
+                        this._data[i + 1] -= 1;
+                    }
+                }
+                else
+                    break;
+            }
+            while(s >= 0)
+            {
+                if (this._data[s])
+                {
+                    if (s !== (this.size() - 1))
+                        this._data = this._data.slice(0, s + 1);
+                    break;
+                }
+                s--;
+            }
+            if(s < 0)
+                this._initialize(0);
         }
 
         public constructor(readonly value?: ValueType)
@@ -346,7 +373,14 @@ module onCalc
             }
             else //both positive
             {
-
+                if (this.less(value))
+                {
+                    let tmp_data = value._data;
+                    value = this;
+                    this._data = tmp_data;
+                    this._negative = true;
+                }
+                this._absoluteSubLessOrEqualValue(value);
             }
         }
 
