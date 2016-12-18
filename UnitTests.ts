@@ -1,4 +1,5 @@
 /// <reference path="LongInt.ts"/>
+/// <reference path="Helpers.ts"/>
 
 module Tests
 {
