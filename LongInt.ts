@@ -227,31 +227,32 @@ module onCalc
             //! Value must be less or equal than this !
             let s = this.size() - 1;
             let vs = value.size();
+            let slice_point = -1;
             for(let i = 0; i <= s; i++)
             {
                 if (i < vs)
                 {
                     this._data[i] -= value._data[i];
-                    if (this._data[i] < 0)
-                    {
-                        this._data[i] += LongInt._helper.digitAbs;
-                        this._data[i + 1] -= 1;
-                    }
+                }
+                if (this._data[i] < 0)
+                {
+                    this._data[i] += LongInt._helper.digitAbs;
+                    this._data[i + 1] -= 1;
+                }
+                if (this._data[i] === 0)
+                {
+                    slice_point = i;
                 }
                 else
-                    break;
-            }
-            while(s >= 0)
-            {
-                if (this._data[s])
                 {
-                    if (s !== (this.size() - 1))
-                        this._data = this._data.slice(0, s + 1);
-                    break;
+                    slice_point = -1;
                 }
-                s--;
             }
-            if(s < 0)
+            if (slice_point > 0)
+            {
+                 this._data = this._data.slice(0, slice_point);
+            }
+            else if(s === 0)
                 this._initialize(0);
         }
 
@@ -357,31 +358,25 @@ module onCalc
         {
             if (this._negative !== value._negative)
             {
-                //(-2) - (+3) = -(2 + 3)
-                //(+2) - (-3) = +(2 + 3)
+                //(-x) - (+y) = -(x + y)
+                //(+x) - (-y) = +(x + y)
                 this._absoluteAdd(value);               
                 return this; 
             }
             else if (this._negative) //both negative
             {
-                let value_copy = new LongInt(value);
-                value_copy._negative = false;
-                value_copy._absoluteSubLessOrEqualValue(this);
-                this._data = value_copy._data; //reference copy
-                this._negative = value_copy._negative;
-                return this;
+                //(-x) - (-y) = -x + y
+                value = new LongInt(value);
+                value._negative = false;
             }
-            else //both positive
+            if (this.less(value))
             {
-                if (this.less(value))
-                {
-                    let tmp_data = value._data;
-                    value = this;
-                    this._data = tmp_data;
-                    this._negative = true;
-                }
-                this._absoluteSubLessOrEqualValue(value);
+                let tmp_data = value._data;
+                value = this;
+                this._data = tmp_data;
+                this._negative = true;
             }
+            this._absoluteSubLessOrEqualValue(value);
         }
 
         public toString(): string
