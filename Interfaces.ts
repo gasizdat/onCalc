@@ -1,4 +1,4 @@
-module onCalc
+declare namespace onCalc
 {    
     export interface Numeric<T>
     {

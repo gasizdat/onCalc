@@ -100,40 +100,18 @@ var onCalc;
         };
         LongInt.prototype._absoluteAdd = function (value) {
             var s = this.size();
-            var max_s = Math.max(s, value.size());
-            for (var i = 0; i < s; i++) {
-                if (s <= i) {
-                    this._data.push(value._data[i]);
-                }
-                else {
-                    this._data[i] += value._data[i];
-                }
+            var sv = value.size();
+            var min_s = Math.min(s, sv);
+            var i = 0;
+            for (; i < min_s; i++) {
+                this._data[i] += value._data[i];
+            }
+            if (i < sv) {
+                //TODO Doesn't work properly, understand why.
+                //this._data.push.apply(value._data.slice(i));
+                this._data = this._data.concat(value._data.slice(i));
             }
             this._bcdNormalize();
-        };
-        LongInt.prototype._absoluteSubLessValue = function (value) {
-            //! Value must be less than this !
-            var s = this.size() - 1;
-            var vs = value.size();
-            var slice_point = -1;
-            for (var i = 0; i <= s; i++) {
-                if (i < vs) {
-                    this._data[i] -= value._data[i];
-                }
-                if (this._data[i] < 0) {
-                    this._data[i] += LongInt._helper.digitAbs;
-                    this._data[i + 1] -= 1;
-                }
-                if (this._data[i] === 0) {
-                    slice_point = i;
-                }
-                else {
-                    slice_point = -1;
-                }
-            }
-            if (slice_point > 0) {
-                this._data = this._data.slice(0, slice_point);
-            }
         };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
@@ -191,11 +169,23 @@ var onCalc;
         };
         LongInt.prototype.add = function (value) {
             if (this._negative === value._negative) {
+                //(+x) + (+y) = +(x + y)
+                //(-x) + (-y) = -(x + y)
                 this._absoluteAdd(value);
                 return this;
             }
-            else {
+            else if (!this._negative) {
+                //(+x) + (-y) = x - y
                 return this.sub(value);
+            }
+            else {
+                //(-x) + (+y) = (+y) - (+x)
+                this._negative = false;
+                value = new LongInt(value);
+                value.sub(this);
+                this._data = value._data;
+                this._negative = value._negative;
+                return this;
             }
         };
         LongInt.prototype.sub = function (value) {
@@ -206,24 +196,51 @@ var onCalc;
                 return this;
             }
             else if (this._negative) {
-                //(-x) - (-y) = -x + y
+                //(-x) - (-y) = y - x
+                this._negative = false;
                 value = new LongInt(value);
                 value._negative = false;
-            }
-            var comp = this._absoluteComparison(value);
-            if (comp == 0) {
-                this._initialize(0);
+                value.sub(this);
+                this._data = value._data;
+                this._negative = value._negative;
+                return this;
             }
             else {
-                if (comp < 0) {
-                    var tmp_data = value._data;
-                    value = this;
-                    this._data = tmp_data;
-                    this._negative = true;
+                var comp = this._absoluteComparison(value);
+                if (comp == 0) {
+                    this._initialize(0);
                 }
-                this._absoluteSubLessValue(value);
+                else {
+                    if (comp < 0) {
+                        var tmp_data = value._data;
+                        value = this;
+                        this._data = tmp_data;
+                        this._negative = true;
+                    }
+                    var s = this.size() - 1;
+                    var vs = value.size();
+                    var slice_point = -1;
+                    for (var i = 0; i <= s; i++) {
+                        if (i < vs) {
+                            this._data[i] -= value._data[i];
+                        }
+                        if (this._data[i] < 0) {
+                            this._data[i] += LongInt._helper.digitAbs;
+                            this._data[i + 1] -= 1;
+                        }
+                        if (this._data[i] === 0) {
+                            slice_point = i;
+                        }
+                        else {
+                            slice_point = -1;
+                        }
+                    }
+                    if (slice_point > 0) {
+                        this._data = this._data.slice(0, slice_point);
+                    }
+                }
+                return this;
             }
-            return this;
         };
         LongInt.prototype.toString = function () {
             var ret = "";

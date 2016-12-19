@@ -1,4 +1,4 @@
-module onCalc
+namespace onCalc
 {
     export class LongIntHelper
     {

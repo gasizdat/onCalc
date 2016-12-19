@@ -1,7 +1,7 @@
 /// <reference path="Helpers.ts"/>
 /// <reference path="Interfaces.ts"/>
 
-module onCalc
+namespace onCalc
 {
 
     export type ValueType = string | number | LongInt;
@@ -130,51 +130,20 @@ module onCalc
         private _absoluteAdd(value: LongInt): void
         {
             let s = this.size();
-            let max_s = Math.max(s, value.size());
-            for (let i = 0; i < s; i++)
+            let sv = value.size();
+            let min_s = Math.min(s, sv);
+            let i = 0;
+            for (; i < min_s; i++)
             {
-                if (s <= i)
-                {
-                    this._data.push(value._data[i]);
-                }
-                else
-                {
-                    this._data[i] += value._data[i];
-                }
+                this._data[i] += value._data[i];
+            }
+            if (i < sv)
+            {
+                //TODO Doesn't work properly, understand why.
+                //this._data.push.apply(value._data.slice(i));
+                this._data = this._data.concat(value._data.slice(i));
             }
             this._bcdNormalize();
-        }
-
-        private _absoluteSubLessValue(value: LongInt): void
-        {
-            //! Value must be less than this !
-            let s = this.size() - 1;
-            let vs = value.size();
-            let slice_point = -1;
-            for(let i = 0; i <= s; i++)
-            {
-                if (i < vs)
-                {
-                    this._data[i] -= value._data[i];
-                }
-                if (this._data[i] < 0)
-                {
-                    this._data[i] += LongInt._helper.digitAbs;
-                    this._data[i + 1] -= 1;
-                }
-                if (this._data[i] === 0)
-                {
-                    slice_point = i;
-                }
-                else
-                {
-                    slice_point = -1;
-                }
-            }
-            if (slice_point > 0)
-            {
-                 this._data = this._data.slice(0, slice_point);
-            }
         }
 
         public constructor(readonly value?: ValueType)
@@ -266,12 +235,25 @@ module onCalc
         {
             if (this._negative === value._negative)
             {
+                //(+x) + (+y) = +(x + y)
+                //(-x) + (-y) = -(x + y)
                 this._absoluteAdd(value);            
                 return this;
             }
+            else if(!this._negative)
+            {
+                //(+x) + (-y) = x - y
+                return this.sub(value);
+            }
             else
             {
-                return this.sub(value);
+                //(-x) + (+y) = (+y) - (+x)
+                this._negative = false;
+                value = new LongInt(value);
+                value.sub(this);
+                this._data = value._data;
+                this._negative = value._negative;
+                return this;
             }
         }
 
@@ -286,27 +268,62 @@ module onCalc
             }
             else if (this._negative) //both negative
             {
-                //(-x) - (-y) = -x + y
+                //(-x) - (-y) = y - x
+                this._negative = false;
                 value = new LongInt(value);
                 value._negative = false;
+                value.sub(this);
+                this._data = value._data;
+                this._negative = value._negative;
+                return this;
             }
-            let comp = this._absoluteComparison(value);
-            if (comp == 0)
-            {
-                this._initialize(0);
-            }
-            else
-            {
-                if (comp < 0)
+            else //both positive
+            {            
+                let comp = this._absoluteComparison(value);
+                if (comp == 0)
                 {
-                    let tmp_data = value._data;
-                    value = this;
-                    this._data = tmp_data;
-                    this._negative = true;
+                    this._initialize(0);
                 }
-                this._absoluteSubLessValue(value);
+                else
+                {
+                    if (comp < 0)
+                    {
+                        let tmp_data = value._data;
+                        value = this;
+                        this._data = tmp_data;
+                        this._negative = true;
+                    }
+
+                    let s = this.size() - 1;
+                    let vs = value.size();
+                    let slice_point = -1;
+                    for(let i = 0; i <= s; i++)
+                    {
+                        if (i < vs)
+                        {
+                            this._data[i] -= value._data[i];
+                        }
+                        if (this._data[i] < 0)
+                        {
+                            this._data[i] += LongInt._helper.digitAbs;
+                            this._data[i + 1] -= 1;
+                        }
+                        if (this._data[i] === 0)
+                        {
+                            slice_point = i;
+                        }
+                        else
+                        {
+                            slice_point = -1;
+                        }
+                    }
+                    if (slice_point > 0)
+                    {
+                        this._data = this._data.slice(0, slice_point);
+                    }
+                }
+                return this;
             }
-            return this;
         }
 
         public toString(): string
