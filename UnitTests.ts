@@ -106,7 +106,7 @@ module Tests
 
         public equalOperatorTrue(): void
         {
-            let eq = (x, y) =>
+            let eq = (x: onCalc.LongInt, y: onCalc.LongInt) =>
             {
                 EXPECT_EQ(true, x.equal(x));
                 EXPECT_EQ(true, y.equal(y));
@@ -124,7 +124,7 @@ module Tests
 
         public equalOperatorFalseForSameSing(): void
         {
-            let eq = (x, y) =>
+            let eq = (x: onCalc.LongInt, y: onCalc.LongInt) =>
             {
                 EXPECT_EQ(false, y.equal(x));
                 EXPECT_EQ(false, x.equal(y));
@@ -315,7 +315,7 @@ module Tests
             {
                 x.sub(y);
             }
-            
+
             let positive = new AnySignUnitTests(false);
             positive.numberToString();
             positive.equalNumberAndStringConstruction();

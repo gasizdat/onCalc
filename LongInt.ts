@@ -306,6 +306,7 @@ module onCalc
                 }
                 this._absoluteSubLessValue(value);
             }
+            return this;
         }
 
         public toString(): string

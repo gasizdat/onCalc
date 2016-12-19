@@ -223,6 +223,7 @@ var onCalc;
                 }
                 this._absoluteSubLessValue(value);
             }
+            return this;
         };
         LongInt.prototype.toString = function () {
             var ret = "";
