@@ -267,9 +267,11 @@ var Tests;
     }(UnitTestsBase));
     function RunAllTests() {
         try {
-            var x = new onCalc.LongInt("100000000000001");
-            var y = new onCalc.LongInt("2");
-            x.sub(y);
+            var x = new onCalc.LongInt("12345678987654321");
+            var y = new onCalc.LongInt("756542317993865");
+            for (var i = 0; i < 10000; i++) {
+                x.sub(y);
+            }
             var positive = new AnySignUnitTests(false);
             positive.numberToString();
             positive.equalNumberAndStringConstruction();
