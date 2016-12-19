@@ -138,13 +138,6 @@ module Tests
             eq(this.longInt("98765432198765432109876543211234567891234567891234567890000000001"), 
                this.longInt("98765432198765432109876543211234567891234567891234567890000000000"));
         }
-
-        private add(): void
-        {
-            //99009900990099009900 + 998877665544332211 = 100008778655643342111
-            let result = new onCalc.LongInt("99009900990099009900").add(new onCalc.LongInt("998877665544332211"));
-            EXPECT_EQ("100008778655643342111", result.toString());
-        }
     }
 
     class signRelatedUnitTests extends UnitTestsBase
@@ -152,37 +145,6 @@ module Tests
         constructor()
         {
             super(false);
-        }
-
-        public lessPosAndPos(): void
-        {
-            let x = this.longInt(0);
-            let y = this.longInt(10);
-            EXPECT_EQ(true, x.less(y));
-            EXPECT_EQ(false, y.less(x));
-            x = this.longInt("100");
-            y = this.longInt("101");
-            EXPECT_EQ(true, x.less(y));
-            EXPECT_EQ(false, y.less(x));
-            x = this.longInt("10099900087718376384324");
-            y = this.longInt("10099900087718376384325");
-            EXPECT_EQ(true, x.less(y));
-            EXPECT_EQ(false, y.less(x));
-            x = this.longInt("626945604241965285022210661186306744278622039194945047123713786960956364371917287467764657573962413890865832645995813390478027590099465764078951269468398352595709825822620522489407726719478268482601476990902640136394437455305068203496252451749399651431429809190659250937221696461515709858387410597885959772975498930161753928468138268683868942774155991855925245953959431049972524680845987273");
-            y = this.longInt("626945604241965285022210661186306744278622039194945047123713786960956364371917287467764657573962413890865832645995813390478027590099465764078951269468398352595709825822620522489407726719478268482601476990902640136394437455305068203496252451749399651431429809190659250937221696461515709858387410597885959772975498930161753928468138268683868942774155991855925245953959431049972524680845987272");
-            EXPECT_EQ(true, y.less(x));
-            EXPECT_EQ(false, x.less(y));
-            x = this.longInt("1020");
-            EXPECT_EQ(true, x.less(y));
-            EXPECT_EQ(false, y.less(x));
-            x = this.longInt("9876543210987654321");
-            y = this.longInt("9876543210987654321");
-            EXPECT_EQ(false, y.less(x));
-            EXPECT_EQ(false, x.less(y));
-            x = this.longInt("9998100000005678894876598765987657654309887665000019876555670000002");
-            y = this.longInt("9998100000005678894876598765987657654309887665000019876555670000002");
-            EXPECT_EQ(false, y.less(x));
-            EXPECT_EQ(false, x.less(y));            
         }
 
         public equalOperatorFalse(): void
@@ -216,6 +178,37 @@ module Tests
                "98765432198765432109876543211234567891234567891234567890000000000");
         }
 
+        public lessPosAndPos(): void
+        {
+            let x = this.longInt(0);
+            let y = this.longInt(10);
+            EXPECT_EQ(true, x.less(y));
+            EXPECT_EQ(false, y.less(x));
+            x = this.longInt("100");
+            y = this.longInt("101");
+            EXPECT_EQ(true, x.less(y));
+            EXPECT_EQ(false, y.less(x));
+            x = this.longInt("10099900087718376384324");
+            y = this.longInt("10099900087718376384325");
+            EXPECT_EQ(true, x.less(y));
+            EXPECT_EQ(false, y.less(x));
+            x = this.longInt("626945604241965285022210661186306744278622039194945047123713786960956364371917287467764657573962413890865832645995813390478027590099465764078951269468398352595709825822620522489407726719478268482601476990902640136394437455305068203496252451749399651431429809190659250937221696461515709858387410597885959772975498930161753928468138268683868942774155991855925245953959431049972524680845987273");
+            y = this.longInt("626945604241965285022210661186306744278622039194945047123713786960956364371917287467764657573962413890865832645995813390478027590099465764078951269468398352595709825822620522489407726719478268482601476990902640136394437455305068203496252451749399651431429809190659250937221696461515709858387410597885959772975498930161753928468138268683868942774155991855925245953959431049972524680845987272");
+            EXPECT_EQ(true, y.less(x));
+            EXPECT_EQ(false, x.less(y));
+            x = this.longInt("1020");
+            EXPECT_EQ(true, x.less(y));
+            EXPECT_EQ(false, y.less(x));
+            x = this.longInt("9876543210987654321");
+            y = this.longInt("9876543210987654321");
+            EXPECT_EQ(false, y.less(x));
+            EXPECT_EQ(false, x.less(y));
+            x = this.longInt("9998100000005678894876598765987657654309887665000019876555670000002");
+            y = this.longInt("9998100000005678894876598765987657654309887665000019876555670000002");
+            EXPECT_EQ(false, y.less(x));
+            EXPECT_EQ(false, x.less(y));            
+        }
+
         public lessPosAndNeg(): void
         {
             let x = this.longInt("-100");
@@ -247,7 +240,70 @@ module Tests
             EXPECT_EQ(false, y.less(x));
             EXPECT_EQ(false, x.less(y));
         }
-    }
+
+        public greaterPosAndPos(): void
+        {
+            let x = this.longInt(10);
+            let y = this.longInt(0);
+            EXPECT_EQ(true, x.greater(y));
+            EXPECT_EQ(false, y.greater(x));
+            x = this.longInt("100500");
+            y = this.longInt("101");
+            EXPECT_EQ(true, x.greater(y));
+            EXPECT_EQ(false, y.greater(x));
+            x = this.longInt("10099900087718376384326");
+            y = this.longInt("10099900087718376384325");
+            EXPECT_EQ(true, x.greater(y));
+            EXPECT_EQ(false, y.greater(x));
+            x = this.longInt("626945604241965285022210661186306744278622039194945047123713786960956364371917287467764657573962413890865832645995813390478027590099465764078951269468398352595709825822620522489407726719478268482601476990902640136394437455305068203496252451749399651431429809190659250937221696461515709858387410597885959772975498930161753928468138268683868942774155991855925245953959431049972524680845987273");
+            y = this.longInt("626945604241965285022210661186306744278622039194945047123713786960956364371917287467764657573962413890865832645995813390478027590099465764078951269468398352595709825822620522489407726719478268482601476990902640136394437455305068203496252451749399651431429809190659250937221696461515709858387410597885959772975498930161753928468138268683868942774155991855925245953959431049972524680845987275");
+            EXPECT_EQ(true, y.greater(x));
+            EXPECT_EQ(false, x.greater(y));
+            y = this.longInt("1020");
+            EXPECT_EQ(true, x.greater(y));
+            EXPECT_EQ(false, y.greater(x));
+            x = this.longInt("9876543210987654321");
+            y = this.longInt("9876543210987654321");
+            EXPECT_EQ(false, y.greater(x));
+            EXPECT_EQ(false, x.greater(y));
+            x = this.longInt("9998100000005678894876598765987657654309887665000019876555670000002");
+            y = this.longInt("9998100000005678894876598765987657654309887665000019876555670000002");
+            EXPECT_EQ(false, y.greater(x));
+            EXPECT_EQ(false, x.greater(y));            
+        }
+ 
+        public greaterPosAndNeg(): void
+        {
+            let x = this.longInt("100");
+            let y = this.longInt("-100");
+            EXPECT_EQ(true, x.greater(y));
+            EXPECT_EQ(false, y.greater(x));
+            x = this.longInt("678899987655443332000000000000000000000000000992");
+            y = this.longInt("-678899987655443332000000000000000000000000000992");
+            EXPECT_EQ(true, x.greater(y));
+            EXPECT_EQ(false, y.greater(x));
+        }
+        
+        public greateNegAndNeg(): void
+        {
+            let x = this.longInt("-100500");
+            let y = this.longInt("-101");
+            EXPECT_EQ(true, y.greater(x));
+            EXPECT_EQ(false, x.greater(y));
+            x = this.longInt("-10099900087718376384324");
+            y = this.longInt("-125");
+            EXPECT_EQ(true, y.greater(x));
+            EXPECT_EQ(false, x.greater(y));
+            x = this.longInt("-876598765987657654309887665000019876555670000001");
+            y = this.longInt("-776598765987657654309887665000019876555670000001");
+            EXPECT_EQ(true, y.greater(x));
+            EXPECT_EQ(false, x.greater(y));            
+            x = this.longInt("-876598765987657654309887665000019876555670000002");
+            y = this.longInt("-876598765987657654309887665000019876555670000002");
+            EXPECT_EQ(false, y.greater(x));
+            EXPECT_EQ(false, x.greater(y));
+        }
+   }
 
     function RunAllTests(): void
     {
@@ -273,6 +329,9 @@ module Tests
             sr.lessPosAndPos();
             sr.lessNegAndNeg();
             sr.lessPosAndNeg();
+            sr.greaterPosAndPos();
+            sr.greaterPosAndNeg();
+            sr.greateNegAndNeg();
             sr.equalOperatorFalse();
 
             alert("ALL TESTS PASSED");

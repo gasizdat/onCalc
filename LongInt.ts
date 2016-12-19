@@ -80,7 +80,7 @@ module onCalc
             }
         }
 
-        private _absoluteGreater(value: LongInt, or_equal: boolean): boolean
+        private _absoluteComparison(value: LongInt): number
         {
             let s = this.size();
             let same_size = s === value.size(); 
@@ -92,37 +92,14 @@ module onCalc
                     let rd = value._data[s];
                     if (ld !== rd)
                     {
-                        return ld > rd;   
+                        return (ld - rd);   
                     }
                 }
-                return or_equal; //All digits equals
+                return 0; //All digits equals
             }
             else
             {
-                return s > value.size();
-            }
-        }
-
-        private _absoluteLess(value: LongInt, or_equal: boolean): boolean
-        {
-            let s = this.size();
-            let same_size = s === value.size(); 
-            if (same_size)
-            {
-                for (s--; s >= 0; s--)
-                {
-                    let ld = this._data[s];
-                    let rd = value._data[s];
-                    if (ld !== rd)
-                    {
-                        return ld < rd;   
-                    }
-                }                
-                return or_equal; //All digits equals
-            }
-            else
-            {
-                return s < value.size();
+                return s - value.size();
             }
         }
         
@@ -168,9 +145,9 @@ module onCalc
             this._bcdNormalize();
         }
 
-        private _absoluteSubLessOrEqualValue(value: LongInt): void
+        private _absoluteSubLessValue(value: LongInt): void
         {
-            //! Value must be less or equal than this !
+            //! Value must be less than this !
             let s = this.size() - 1;
             let vs = value.size();
             let slice_point = -1;
@@ -198,8 +175,6 @@ module onCalc
             {
                  this._data = this._data.slice(0, slice_point);
             }
-            else if(s === 0)
-                this._initialize(0);
         }
 
         public constructor(readonly value?: ValueType)
@@ -236,12 +211,12 @@ module onCalc
             if (this._negative === value._negative)
             {
                 return this._negative ? 
-                       this._absoluteLess(value, false) :
-                       this._absoluteGreater(value, false);
+                       this._absoluteComparison(value) < 0 :
+                       this._absoluteComparison(value) > 0;
             }
             else
             {
-                return !value._negative;
+                return value._negative;
             }
         }
 
@@ -250,12 +225,12 @@ module onCalc
             if (this._negative === value._negative)
             {
                 return this._negative ? 
-                       this._absoluteLess(value, true) :
-                       this._absoluteGreater(value, true);
+                       this._absoluteComparison(value) <= 0 :
+                       this._absoluteComparison(value) >= 0;
             }
             else
             {
-                return !value._negative;
+                return value._negative;
             }
         }
 
@@ -264,8 +239,8 @@ module onCalc
             if (this._negative === value._negative)
             {
                 return this._negative ? 
-                       this._absoluteGreater(value, false) :
-                       this._absoluteLess(value, false);
+                       this._absoluteComparison(value) > 0 :
+                       this._absoluteComparison(value) < 0;
             }
             else
             {
@@ -278,8 +253,8 @@ module onCalc
             if (this._negative === value._negative)
             {
                 return this._negative ? 
-                       this._absoluteGreater(value, true) :
-                       this._absoluteLess(value, true);
+                       this._absoluteComparison(value) >= 0 :
+                       this._absoluteComparison(value) <= 0;
             }
             else
             {
@@ -315,14 +290,22 @@ module onCalc
                 value = new LongInt(value);
                 value._negative = false;
             }
-            if (this.less(value))
+            let comp = this._absoluteComparison(value);
+            if (comp == 0)
             {
-                let tmp_data = value._data;
-                value = this;
-                this._data = tmp_data;
-                this._negative = true;
+                this._initialize(0);
             }
-            this._absoluteSubLessOrEqualValue(value);
+            else
+            {
+                if (comp < 0)
+                {
+                    let tmp_data = value._data;
+                    value = this;
+                    this._data = tmp_data;
+                    this._negative = true;
+                }
+                this._absoluteSubLessValue(value);
+            }
         }
 
         public toString(): string

@@ -63,7 +63,7 @@ var onCalc;
                 throw new Error("Unsupported value type " + typeof (value));
             }
         };
-        LongInt.prototype._absoluteGreater = function (value, or_equal) {
+        LongInt.prototype._absoluteComparison = function (value) {
             var s = this.size();
             var same_size = s === value.size();
             if (same_size) {
@@ -71,30 +71,13 @@ var onCalc;
                     var ld = this._data[s];
                     var rd = value._data[s];
                     if (ld !== rd) {
-                        return ld > rd;
+                        return (ld - rd);
                     }
                 }
-                return or_equal; //All digits equals
+                return 0; //All digits equals
             }
             else {
-                return s > value.size();
-            }
-        };
-        LongInt.prototype._absoluteLess = function (value, or_equal) {
-            var s = this.size();
-            var same_size = s === value.size();
-            if (same_size) {
-                for (s--; s >= 0; s--) {
-                    var ld = this._data[s];
-                    var rd = value._data[s];
-                    if (ld !== rd) {
-                        return ld < rd;
-                    }
-                }
-                return or_equal; //All digits equals
-            }
-            else {
-                return s < value.size();
+                return s - value.size();
             }
         };
         LongInt.prototype._bcdNormalize = function () {
@@ -128,8 +111,8 @@ var onCalc;
             }
             this._bcdNormalize();
         };
-        LongInt.prototype._absoluteSubLessOrEqualValue = function (value) {
-            //! Value must be less or equal than this !
+        LongInt.prototype._absoluteSubLessValue = function (value) {
+            //! Value must be less than this !
             var s = this.size() - 1;
             var vs = value.size();
             var slice_point = -1;
@@ -151,8 +134,6 @@ var onCalc;
             if (slice_point > 0) {
                 this._data = this._data.slice(0, slice_point);
             }
-            else if (s === 0)
-                this._initialize(0);
         };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
@@ -171,28 +152,28 @@ var onCalc;
         LongInt.prototype.greater = function (value) {
             if (this._negative === value._negative) {
                 return this._negative ?
-                    this._absoluteLess(value, false) :
-                    this._absoluteGreater(value, false);
+                    this._absoluteComparison(value) < 0 :
+                    this._absoluteComparison(value) > 0;
             }
             else {
-                return !value._negative;
+                return value._negative;
             }
         };
         LongInt.prototype.greaterOrEqual = function (value) {
             if (this._negative === value._negative) {
                 return this._negative ?
-                    this._absoluteLess(value, true) :
-                    this._absoluteGreater(value, true);
+                    this._absoluteComparison(value) <= 0 :
+                    this._absoluteComparison(value) >= 0;
             }
             else {
-                return !value._negative;
+                return value._negative;
             }
         };
         LongInt.prototype.less = function (value) {
             if (this._negative === value._negative) {
                 return this._negative ?
-                    this._absoluteGreater(value, false) :
-                    this._absoluteLess(value, false);
+                    this._absoluteComparison(value) > 0 :
+                    this._absoluteComparison(value) < 0;
             }
             else {
                 return this._negative;
@@ -201,8 +182,8 @@ var onCalc;
         LongInt.prototype.lessOrEqual = function (value) {
             if (this._negative === value._negative) {
                 return this._negative ?
-                    this._absoluteGreater(value, true) :
-                    this._absoluteLess(value, true);
+                    this._absoluteComparison(value) >= 0 :
+                    this._absoluteComparison(value) <= 0;
             }
             else {
                 return this._negative;
@@ -229,13 +210,19 @@ var onCalc;
                 value = new LongInt(value);
                 value._negative = false;
             }
-            if (this.less(value)) {
-                var tmp_data = value._data;
-                value = this;
-                this._data = tmp_data;
-                this._negative = true;
+            var comp = this._absoluteComparison(value);
+            if (comp == 0) {
+                this._initialize(0);
             }
-            this._absoluteSubLessOrEqualValue(value);
+            else {
+                if (comp < 0) {
+                    var tmp_data = value._data;
+                    value = this;
+                    this._data = tmp_data;
+                    this._negative = true;
+                }
+                this._absoluteSubLessValue(value);
+            }
         };
         LongInt.prototype.toString = function () {
             var ret = "";
