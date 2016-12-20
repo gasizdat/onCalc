@@ -7,21 +7,29 @@ var __extends = (this && this.__extends) || function (d, b) {
 };
 var Tests;
 (function (Tests) {
+    var Assert = (function () {
+        function Assert() {
+        }
+        Assert.equal = function (expected, actual) {
+            var assert;
+            switch (typeof (expected)) {
+                case "string":
+                case "number":
+                case "boolean":
+                    assert = expected === actual;
+                    break;
+                default:
+                    assert = expected.equal(actual);
+                    break;
+            }
+            if (!assert) {
+                throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
+            }
+        };
+        return Assert;
+    }());
     function EXPECT_EQ(expected, actual) {
-        var assert;
-        switch (typeof (expected)) {
-            case "string":
-            case "number":
-            case "boolean":
-                assert = expected === actual;
-                break;
-            default:
-                assert = expected.equal(actual);
-                break;
-        }
-        if (!assert) {
-            throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
-        }
+        Assert.equal(expected, actual);
     }
     var UnitTestsBase = (function () {
         function UnitTestsBase(negative) {
@@ -42,6 +50,14 @@ var Tests;
         UnitTestsBase.prototype.str = function (value) {
             return ((this.negative() && value !== "0") ? ("-" + value) : value);
         };
+        UnitTestsBase.prototype.commutativeAdd = function (x, y, result) {
+            var lx = this.longInt(x);
+            var ly = this.longInt(y);
+            var lresult = this.longInt(result);
+            EXPECT_EQ(lresult, lx.add(ly));
+            lx = this.longInt(x);
+            EXPECT_EQ(lresult, ly.add(lx));
+        };
         return UnitTestsBase;
     }());
     var AnySignUnitTests = (function (_super) {
@@ -49,11 +65,6 @@ var Tests;
         function AnySignUnitTests(negative) {
             return _super.call(this, negative) || this;
         }
-        AnySignUnitTests.prototype.fromReal = function () {
-            var i = this.longInt(3.14159265358e300);
-            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
-            EXPECT_EQ(true, i.lessOrEqual(this.longInt("3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
-        };
         AnySignUnitTests.prototype.numberToString = function () {
             var i = this.longInt(0);
             EXPECT_EQ(this.str("0"), i.toString());
@@ -123,18 +134,8 @@ var Tests;
             eq(this.longInt("98765432198765432109876543211234567891234567891234567890000000001"), this.longInt("98765432198765432109876543211234567891234567891234567890000000000"));
         };
         AnySignUnitTests.prototype.addOperator = function () {
-            var _this = this;
-            var commutative_add = function (x, y, result) {
-                var lx = _this.longInt(x);
-                var ly = _this.longInt(y);
-                var lresult = _this.longInt(result);
-                EXPECT_EQ(lresult, lx.add(ly));
-                lx = _this.longInt(x);
-                ly = _this.longInt(y);
-                EXPECT_EQ(lresult, ly.add(lx));
-            };
-            commutative_add("1000000000000000000123456", "100500", "1000000000000000000223956");
-            commutative_add("999999999999999999999999999999999999999999", "1", "1000000000000000000000000000000000000000000");
+            this.commutativeAdd("1000000000000000000123456", "100500", "1000000000000000000223956");
+            this.commutativeAdd("999999999999999999999999999999999999999999", "1", "1000000000000000000000000000000000000000000");
             var x = this.longInt("988898223000005567789");
             for (var i = 0; i < 100; i++) {
                 x.add(x);
@@ -389,6 +390,20 @@ var Tests;
             EXPECT_EQ(true, x.greaterOrEqual(y));
             EXPECT_EQ(false, y.greaterOrEqual(x));
         };
+        signRelatedUnitTests.prototype.fromReal = function () {
+            var i = this.longInt(3.14159265358e300);
+            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+            EXPECT_EQ(true, i.lessOrEqual(this.longInt("3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+            i = this.longInt(-3.14159265358e300);
+            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("-3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+            EXPECT_EQ(true, i.lessOrEqual(this.longInt("-3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+        };
+        signRelatedUnitTests.prototype.addOperatorPosAndNeg = function () {
+            this.commutativeAdd("100500", "-100500", "0");
+            this.commutativeAdd("100000000000000000000500000000000000123", "-100000000000000000000500000000000000123", "0");
+            this.commutativeAdd("98765432100000000001234567", "-7748744000865746536452", "98757683355999134254698115");
+            this.commutativeAdd("8754740754354385747504875", "-1009999292993838883488000200320350650075060887876700", "-1009999292993838883488000191565609895720675140371825");
+        };
         return signRelatedUnitTests;
     }(UnitTestsBase));
     function RunAllTests() {
@@ -398,16 +413,15 @@ var Tests;
             positive.equalNumberAndStringConstruction();
             positive.equalOperatorTrue();
             positive.equalOperatorFalse();
-            positive.fromReal();
             positive.addOperator();
             var negative = new AnySignUnitTests(true);
             negative.numberToString();
             negative.equalNumberAndStringConstruction();
             negative.equalOperatorTrue();
             negative.equalOperatorFalse();
-            negative.fromReal();
             negative.addOperator();
             var sr = new signRelatedUnitTests();
+            sr.equalOperatorFalse();
             sr.lessPosAndPos();
             sr.lessNegAndNeg();
             sr.lessPosAndNeg();
@@ -420,7 +434,8 @@ var Tests;
             sr.greateOrEqualPosAndPos();
             sr.greaterOrEqualPosAndNeg();
             sr.greaterOrEqualNegAndNeg();
-            sr.equalOperatorFalse();
+            sr.fromReal();
+            sr.addOperatorPosAndNeg();
             alert("ALL TESTS PASSED");
         }
         catch (ex) {

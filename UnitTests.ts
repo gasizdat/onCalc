@@ -3,24 +3,32 @@
 
 namespace Tests
 {
-    function EXPECT_EQ<T>(expected: string|onCalc.LongInt|number|boolean, actual: string|onCalc.LongInt|number|boolean): void
+    class Assert
+    {  
+        public static equal(expected: string|onCalc.LongInt|number|boolean, actual: string|onCalc.LongInt|number|boolean): void
+        {
+            let assert: boolean;
+            switch(typeof(expected))
+            {
+                case "string":
+                case "number":
+                case "boolean":
+                    assert = expected === actual;
+                    break;
+                default: 
+                    assert = (<onCalc.LongInt>expected).equal(<onCalc.LongInt>actual);
+                    break;
+            }
+            if(!assert)
+            {
+                throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
+            }
+        }
+    }
+
+    function EXPECT_EQ<T>(expected: T, actual: T): void
     {
-        let assert: boolean;
-        switch(typeof(expected))
-        {
-            case "string":
-            case "number":
-            case "boolean":
-                assert = expected === actual;
-                break;
-            default: 
-                assert = (<onCalc.LongInt>expected).equal(<onCalc.LongInt>actual);
-                break;
-        }
-        if(!assert)
-        {
-            throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
-        }
+        Assert.equal(<any>expected, <any>actual);
     }
 
     class UnitTestsBase
@@ -50,6 +58,17 @@ namespace Tests
         }
 
         protected readonly negative = () => this._negative;
+    
+        protected commutativeAdd(x: string, y: string, result: string): void
+        {
+            let lx = this.longInt(x);
+            let ly = this.longInt(y);
+            let lresult = this.longInt(result);
+            EXPECT_EQ(lresult, lx.add(ly));
+
+            lx = this.longInt(x);
+            EXPECT_EQ(lresult, ly.add(lx));
+        }
     }
 
     class AnySignUnitTests extends UnitTestsBase
@@ -57,13 +76,6 @@ namespace Tests
         constructor(negative: boolean)
         {
             super(negative);
-        }
-
-        public fromReal(): void
-        {
-            let i = this.longInt(3.14159265358e300);
-            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
-            EXPECT_EQ(true, i.lessOrEqual(this.longInt("3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));            
         }
 
         public numberToString(): void
@@ -148,23 +160,18 @@ namespace Tests
 
         public addOperator(): void
         {
-            let commutative_add = (x: string, y: string, result: string)=>
-            {
-                let lx = this.longInt(x);
-                let ly = this.longInt(y);
-                let lresult = this.longInt(result);
-                EXPECT_EQ(lresult, lx.add(ly));
-
-                lx = this.longInt(x);
-                ly = this.longInt(y);
-                EXPECT_EQ(lresult, ly.add(lx));
-            }; 
-            commutative_add("1000000000000000000123456", 
-                            "100500",
-                            "1000000000000000000223956");
-            commutative_add("999999999999999999999999999999999999999999", 
-                            "1",
-                            "1000000000000000000000000000000000000000000");
+            this.commutativeAdd
+            (
+                "1000000000000000000123456", 
+                "100500",
+                "1000000000000000000223956"
+            );
+            this.commutativeAdd
+            (
+                "999999999999999999999999999999999999999999", 
+                "1",
+                "1000000000000000000000000000000000000000000"
+            );
             let x = this.longInt("988898223000005567789");
             for(let i = 0; i < 100; i++)
             {
@@ -452,7 +459,45 @@ namespace Tests
             EXPECT_EQ(false, y.greaterOrEqual(x));
         }
 
-   }
+        public fromReal(): void
+        {
+            let i = this.longInt(3.14159265358e300);
+            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+            EXPECT_EQ(true, i.lessOrEqual(this.longInt("3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+            
+            i = this.longInt(-3.14159265358e300);
+            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("-3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));            
+            EXPECT_EQ(true, i.lessOrEqual(this.longInt("-3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+        }
+
+        public addOperatorPosAndNeg(): void
+        {
+            this.commutativeAdd
+            (
+                "100500", 
+                "-100500", 
+                "0"
+            );
+            this.commutativeAdd
+            (
+                "100000000000000000000500000000000000123", 
+                "-100000000000000000000500000000000000123", 
+                "0"
+            );
+            this.commutativeAdd
+            (
+                "98765432100000000001234567", 
+                "-7748744000865746536452", 
+                "98757683355999134254698115"
+            );
+            this.commutativeAdd
+            (
+                "8754740754354385747504875", 
+                "-1009999292993838883488000200320350650075060887876700", 
+                "-1009999292993838883488000191565609895720675140371825"
+            );
+        }
+    }
 
     function RunAllTests(): void
     {
@@ -463,7 +508,6 @@ namespace Tests
             positive.equalNumberAndStringConstruction();
             positive.equalOperatorTrue();
             positive.equalOperatorFalse();
-            positive.fromReal();
             positive.addOperator();
 
             let negative = new AnySignUnitTests(true);
@@ -471,10 +515,11 @@ namespace Tests
             negative.equalNumberAndStringConstruction();
             negative.equalOperatorTrue();
             negative.equalOperatorFalse();
-            negative.fromReal();
             negative.addOperator();
 
             let sr = new signRelatedUnitTests();
+            sr.equalOperatorFalse();
+
             sr.lessPosAndPos();
             sr.lessNegAndNeg();
             sr.lessPosAndNeg();
@@ -491,7 +536,9 @@ namespace Tests
             sr.greaterOrEqualPosAndNeg();
             sr.greaterOrEqualNegAndNeg();
 
-            sr.equalOperatorFalse();
+            sr.fromReal();
+
+            sr.addOperatorPosAndNeg();
 
             alert("ALL TESTS PASSED");
         }

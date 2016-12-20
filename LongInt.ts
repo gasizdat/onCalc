@@ -8,7 +8,7 @@ namespace onCalc
     
     //The BCD-like "unlimited" long integer number
     //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
-    export class LongInt implements Numeric<LongInt>
+    export class LongInt implements Numeric
     {
         private static readonly _helper = new LongIntHelper();
         private _negative: boolean;
@@ -148,6 +148,56 @@ namespace onCalc
             this._bcdNormalize();
         }
 
+        private _absoluteSub(value: LongInt): void
+        {            
+            let comp = this._absoluteComparison(value);
+            if (comp == 0)
+            {
+                this._initialize(0);
+            }
+            else
+            {
+                if (comp < 0)
+                {
+                    //copy value data and swap with this
+                    let tmp_data = value._data;
+                    value = new LongInt();
+                    value._data = this._data;
+                    this._data = tmp_data.slice(0);
+                    this._negative = true;
+                }
+
+                let s = this.size() - 1;
+                let vs = value.size();
+                let slice_point = -1;
+                for(let i = 0; i <= s; i++)
+                {
+                    if (i < vs)
+                    {
+                        this._data[i] -= value._data[i];
+                    }
+                    if (this._data[i] < 0)
+                    {
+                        this._data[i] += LongInt._helper.digitAbs;
+                        this._data[i + 1] -= 1;
+                    }
+                    if (this._data[i] === 0)
+                    {
+                        slice_point = i;
+                    }
+                    else
+                    {
+                        slice_point = -1;
+                    }
+                }
+                if (slice_point > 0)
+                {
+                    this._data = this._data.slice(0, slice_point);
+                }
+            }
+        }
+
+
         public constructor(readonly value?: ValueType)
         {
             this._initialize(value);
@@ -240,23 +290,22 @@ namespace onCalc
                 //(+x) + (+y) = +(x + y)
                 //(-x) + (-y) = -(x + y)
                 this._absoluteAdd(value);            
-                return this;
             }
             else if(!this._negative)
             {
                 //(+x) + (-y) = x - y
-                return this.sub(value);
+                this._absoluteSub(value);
             }
             else
             {
                 //(-x) + (+y) = (+y) - (+x)
                 this._negative = false;
                 value = new LongInt(value);
-                value.sub(this);
+                value._absoluteSub(this);
                 this._data = value._data;
                 this._negative = value._negative;
-                return this;
             }
+            return this;
         }
 
         public sub(value: LongInt): LongInt
@@ -266,7 +315,6 @@ namespace onCalc
                 //(-x) - (+y) = -(x + y)
                 //(+x) - (-y) = +(x + y)
                 this._absoluteAdd(value);               
-                return this; 
             }
             else if (this._negative) //both negative
             {
@@ -277,60 +325,23 @@ namespace onCalc
                 value.sub(this);
                 this._data = value._data;
                 this._negative = value._negative;
-                return this;
             }
             else //both positive
-            {            
-                let comp = this._absoluteComparison(value);
-                if (comp == 0)
-                {
-                    this._initialize(0);
-                }
-                else
-                {
-                    if (comp < 0)
-                    {
-                        let tmp_data = value._data;
-                        value = this;
-                        this._data = tmp_data;
-                        this._negative = true;
-                    }
-
-                    let s = this.size() - 1;
-                    let vs = value.size();
-                    let slice_point = -1;
-                    for(let i = 0; i <= s; i++)
-                    {
-                        if (i < vs)
-                        {
-                            this._data[i] -= value._data[i];
-                        }
-                        if (this._data[i] < 0)
-                        {
-                            this._data[i] += LongInt._helper.digitAbs;
-                            this._data[i + 1] -= 1;
-                        }
-                        if (this._data[i] === 0)
-                        {
-                            slice_point = i;
-                        }
-                        else
-                        {
-                            slice_point = -1;
-                        }
-                    }
-                    if (slice_point > 0)
-                    {
-                        this._data = this._data.slice(0, slice_point);
-                    }
-                }
-                return this;
+            {
+                this._absoluteSub(value);
             }
+            return this;
+        }
+
+        public mul(value: LongInt): LongInt
+        {
+            return this;
         }
 
         public toString(): string
         {
             let ret: string = "";
+            //TS bug value, index, array - implicit any, but fine compiling
             this._data.forEach((value, index, array)=>
             {
                 let digit = value.toString();
