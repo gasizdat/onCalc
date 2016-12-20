@@ -13,6 +13,8 @@ var onCalc;
             this._initialize(value);
         }
         LongInt.prototype._initializeNumber = function (value) {
+            if (!isFinite(value))
+                throw EvalError("Initialize value is infinite or NaN");
             this._negative = value < 0;
             this._data = new Array(1);
             this._data[0] = Math.abs(value);

@@ -49,6 +49,11 @@ var Tests;
         function AnySignUnitTests(negative) {
             return _super.call(this, negative) || this;
         }
+        AnySignUnitTests.prototype.fromReal = function () {
+            var i = this.longInt(3.14159265358e300);
+            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+            EXPECT_EQ(true, i.lessOrEqual(this.longInt("3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+        };
         AnySignUnitTests.prototype.numberToString = function () {
             var i = this.longInt(0);
             EXPECT_EQ(this.str("0"), i.toString());
@@ -130,6 +135,11 @@ var Tests;
             };
             commutative_add("1000000000000000000123456", "100500", "1000000000000000000223956");
             commutative_add("999999999999999999999999999999999999999999", "1", "1000000000000000000000000000000000000000000");
+            var x = this.longInt("988898223000005567789");
+            for (var i = 0; i < 100; i++) {
+                x.add(x);
+            }
+            EXPECT_EQ(this.longInt("1253577425950586507587511134287881576775643157233664"), x);
         };
         return AnySignUnitTests;
     }(UnitTestsBase));
@@ -388,12 +398,14 @@ var Tests;
             positive.equalNumberAndStringConstruction();
             positive.equalOperatorTrue();
             positive.equalOperatorFalse();
+            positive.fromReal();
             positive.addOperator();
             var negative = new AnySignUnitTests(true);
             negative.numberToString();
             negative.equalNumberAndStringConstruction();
             negative.equalOperatorTrue();
             negative.equalOperatorFalse();
+            negative.fromReal();
             negative.addOperator();
             var sr = new signRelatedUnitTests();
             sr.lessPosAndPos();

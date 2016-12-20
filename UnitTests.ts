@@ -59,6 +59,13 @@ namespace Tests
             super(negative);
         }
 
+        public fromReal(): void
+        {
+            let i = this.longInt(3.14159265358e300);
+            EXPECT_EQ(true, i.greaterOrEqual(this.longInt("3141592653580000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));
+            EXPECT_EQ(true, i.lessOrEqual(this.longInt("3141592653590000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000")));            
+        }
+
         public numberToString(): void
         {
             let i = this.longInt(0);
@@ -151,13 +158,19 @@ namespace Tests
                 lx = this.longInt(x);
                 ly = this.longInt(y);
                 EXPECT_EQ(lresult, ly.add(lx));
-            };
+            }; 
             commutative_add("1000000000000000000123456", 
                             "100500",
                             "1000000000000000000223956");
             commutative_add("999999999999999999999999999999999999999999", 
                             "1",
                             "1000000000000000000000000000000000000000000");
+            let x = this.longInt("988898223000005567789");
+            for(let i = 0; i < 100; i++)
+            {
+                x.add(x);
+            }
+            EXPECT_EQ(this.longInt("1253577425950586507587511134287881576775643157233664"), x);
         }
     }
 
@@ -450,6 +463,7 @@ namespace Tests
             positive.equalNumberAndStringConstruction();
             positive.equalOperatorTrue();
             positive.equalOperatorFalse();
+            positive.fromReal();
             positive.addOperator();
 
             let negative = new AnySignUnitTests(true);
@@ -457,6 +471,7 @@ namespace Tests
             negative.equalNumberAndStringConstruction();
             negative.equalOperatorTrue();
             negative.equalOperatorFalse();
+            negative.fromReal();
             negative.addOperator();
 
             let sr = new signRelatedUnitTests();
