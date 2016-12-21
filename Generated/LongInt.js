@@ -5,6 +5,10 @@ var onCalc;
     //The BCD-like "unlimited" long integer number
     //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
     var LongInt = (function () {
+        /*private _absoluteShiftDown(): void
+        {
+            this._data.shift();
+        }*/
         function LongInt(value) {
             var _this = this;
             this.value = value;
@@ -152,6 +156,11 @@ var onCalc;
                 }
             }
         };
+        LongInt.prototype._absoluteShiftUp = function (digits) {
+            while (digits--) {
+                this._data.unshift(0);
+            }
+        };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
             return this;
@@ -247,6 +256,18 @@ var onCalc;
             return this;
         };
         LongInt.prototype.mul = function (value) {
+            var result = new onCalc.LongInt();
+            var temp_result = new onCalc.LongInt();
+            this._data.forEach(function (x, i) {
+                temp_result._data = new Array(value.size());
+                value._data.forEach(function (y, j) {
+                    temp_result._data[j] = x * y;
+                });
+                temp_result._absoluteShiftUp(i);
+                result._absoluteAdd(temp_result);
+            });
+            this._data = result._data;
+            this._negative = this._negative !== value._negative;
             return this;
         };
         LongInt.prototype.toString = function () {

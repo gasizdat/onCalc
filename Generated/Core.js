@@ -14,9 +14,11 @@ var onCalc;
             script.type = "text/javascript";
             script.async = async;
             console.log("onCalc part " + name + " loading...");
-            script.onload = function () {
-                console.log("onCalc part " + name + " loaded!");
-            };
+            if (async) {
+                script.onload = function () {
+                    console.log("onCalc part " + name + " loaded!");
+                };
+            }
             document.head.appendChild(script);
         };
         return Core;

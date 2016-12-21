@@ -191,6 +191,35 @@ namespace Tests
             }
             EXPECT_EQ(this.longInt("1253577425950586507587511134287881576775643157233664"), x);            
         }
+
+        public mulOperator(): void
+        {
+            let commutative_mul = (x: string, y: string, z: string)=>
+            {
+                let lx = this.longInt(x);
+                let ly = this.longInt(y);
+                let lz = new onCalc.LongInt(z);
+                EXPECT_EQ(lz, lx.mul(ly));                
+                lx = this.longInt(x);
+                EXPECT_EQ(lz, ly.mul(lx));
+            };
+
+            commutative_mul("123456",
+                            "8765",
+                            "1082091840");
+
+            commutative_mul("650",
+                            "12",
+                            "7800");
+
+            commutative_mul("1000000200000030",
+                            "100000050",
+                            "100000070000013000001500");
+
+            commutative_mul("988898223000005567789",
+                            "30240701240000002103230000000011",
+                            "29904975718510066973724125918672588221311470061245679");
+        }
     }
 
     class signRelatedUnitTests extends UnitTestsBase
@@ -528,6 +557,7 @@ namespace Tests
             positive.equalOperatorTrue();
             positive.equalOperatorFalse();
             positive.addOperator();
+            positive.mulOperator();
 
             let negative = new AnySignUnitTests(true);
             negative.numberToString();
@@ -535,6 +565,7 @@ namespace Tests
             negative.equalOperatorTrue();
             negative.equalOperatorFalse();
             negative.addOperator();
+            negative.mulOperator();
 
             let sr = new signRelatedUnitTests();
             sr.equalOperatorFalse();

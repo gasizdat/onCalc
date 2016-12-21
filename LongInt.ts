@@ -197,6 +197,18 @@ namespace onCalc
             }
         }
 
+        private _absoluteShiftUp(digits: number): void
+        {
+            while(digits--)
+            {
+                this._data.unshift(0);
+            }
+        }
+
+        /*private _absoluteShiftDown(): void
+        {
+            this._data.shift();
+        }*/
 
         public constructor(readonly value?: ValueType)
         {
@@ -335,6 +347,20 @@ namespace onCalc
 
         public mul(value: LongInt): LongInt
         {
+            let result = new onCalc.LongInt();
+            let temp_result = new onCalc.LongInt();
+            this._data.forEach((x: number, i: number)=>
+            {
+                temp_result._data = new Array<number>(value.size());
+                value._data.forEach((y: number, j: number)=>
+                {
+                    temp_result._data[j] = x * y;
+                });
+                temp_result._absoluteShiftUp(i);
+                result._absoluteAdd(temp_result);
+            });
+            this._data = result._data;
+            this._negative = this._negative !== value._negative;
             return this;
         }
 

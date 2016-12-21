@@ -5,6 +5,8 @@
         "sourceMap": true,
         "outDir": "Generated",
         "noImplicitAny": true,
-        "noImplicitReturns": true
+        "noImplicitReturns": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true
     }
 }

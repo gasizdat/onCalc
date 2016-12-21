@@ -142,11 +142,27 @@ var Tests;
         AnySignUnitTests.prototype.addOperator = function () {
             this.commutativeAdd("1000000000000000000123456", "100500", "1000000000000000000223956");
             this.commutativeAdd("999999999999999999999999999999999999999999", "1", "1000000000000000000000000000000000000000000");
+            //988898223000005567789 * 2^100 = 1253577425950586507587511134287881576775643157233664
             var x = this.longInt("988898223000005567789");
             for (var i = 0; i < 100; i++) {
                 x.add(x);
             }
             EXPECT_EQ(this.longInt("1253577425950586507587511134287881576775643157233664"), x);
+        };
+        AnySignUnitTests.prototype.mulOperator = function () {
+            var _this = this;
+            var commutative_mul = function (x, y, z) {
+                var lx = _this.longInt(x);
+                var ly = _this.longInt(y);
+                var lz = new onCalc.LongInt(z);
+                EXPECT_EQ(lz, lx.mul(ly));
+                lx = _this.longInt(x);
+                EXPECT_EQ(lz, ly.mul(lx));
+            };
+            commutative_mul("123456", "8765", "1082091840");
+            commutative_mul("650", "12", "7800");
+            commutative_mul("1000000200000030", "100000050", "100000070000013000001500");
+            commutative_mul("988898223000005567789", "30240701240000002103230000000011", "29904975718510066973724125918672588221311470061245679");
         };
         return AnySignUnitTests;
     }(UnitTestsBase));
@@ -421,12 +437,14 @@ var Tests;
             positive.equalOperatorTrue();
             positive.equalOperatorFalse();
             positive.addOperator();
+            positive.mulOperator();
             var negative = new AnySignUnitTests(true);
             negative.numberToString();
             negative.equalNumberAndStringConstruction();
             negative.equalOperatorTrue();
             negative.equalOperatorFalse();
             negative.addOperator();
+            negative.mulOperator();
             var sr = new signRelatedUnitTests();
             sr.equalOperatorFalse();
             sr.lessPosAndPos();
