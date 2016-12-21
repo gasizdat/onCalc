@@ -44,6 +44,7 @@ namespace Tests
     class UnitTestsBase
     {
         private readonly _negative: boolean;
+        private _StopWatch: number;
         constructor(negative: boolean)
         {
             this._negative = negative;
@@ -78,6 +79,16 @@ namespace Tests
 
             lx = this.longInt(x);
             EXPECT_EQ(lresult, ly.add(lx));
+        }
+
+        protected stopWatchStart(): void
+        {
+            this._StopWatch = Date.now();
+        }
+
+        protected stopWatchStop(): number
+        {
+            return this._StopWatch = Date.now() - this._StopWatch;
         }
     }
 
@@ -219,6 +230,20 @@ namespace Tests
             commutative_mul("988898223000005567789",
                             "30240701240000002103230000000011",
                             "29904975718510066973724125918672588221311470061245679");
+
+            //5433298776 ^ 20
+            let x = this.longInt("5433298776");
+            let y = this.longInt(1);
+            super.stopWatchStart();
+            for(let i = 0; i < 20; i++)
+            {
+                y.mul(x);
+            }
+            console.log("power 20th of 5433298776 at " + super.stopWatchStop().toString() + " ms");
+            EXPECT_EQ(this.longInt("502657016439618253936552706323987501462044462964350" +
+                                   "812061079995281026604246661831456686060326362690004" +
+                                   "0919171814301248338843990986237094445425150910346005" + 
+                                   "22312044753658643996655611309612781797376"), y);
         }
     }
 

@@ -64,6 +64,12 @@ var Tests;
             lx = this.longInt(x);
             EXPECT_EQ(lresult, ly.add(lx));
         };
+        UnitTestsBase.prototype.stopWatchStart = function () {
+            this._StopWatch = Date.now();
+        };
+        UnitTestsBase.prototype.stopWatchStop = function () {
+            return this._StopWatch = Date.now() - this._StopWatch;
+        };
         return UnitTestsBase;
     }());
     var AnySignUnitTests = (function (_super) {
@@ -163,6 +169,18 @@ var Tests;
             commutative_mul("650", "12", "7800");
             commutative_mul("1000000200000030", "100000050", "100000070000013000001500");
             commutative_mul("988898223000005567789", "30240701240000002103230000000011", "29904975718510066973724125918672588221311470061245679");
+            //5433298776 ^ 20
+            var x = this.longInt("5433298776");
+            var y = this.longInt(1);
+            _super.prototype.stopWatchStart.call(this);
+            for (var i = 0; i < 20; i++) {
+                y.mul(x);
+            }
+            console.log("power 20th of 5433298776 at " + _super.prototype.stopWatchStop.call(this).toString() + " ms");
+            EXPECT_EQ(this.longInt("502657016439618253936552706323987501462044462964350" +
+                "812061079995281026604246661831456686060326362690004" +
+                "0919171814301248338843990986237094445425150910346005" +
+                "22312044753658643996655611309612781797376"), y);
         };
         return AnySignUnitTests;
     }(UnitTestsBase));
