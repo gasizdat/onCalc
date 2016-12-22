@@ -41,6 +41,19 @@ namespace Tests
         Assert.equal(false, actual);
     }
 
+    function EXPECT_THROW(expression: any)
+    {
+        try
+        {
+            expression();
+        }
+        catch(ex)
+        {
+            return;
+        }
+        throw new EvalError("Expected: throw exception. Actual: normal evaluation");
+    }
+
     class UnitTestsBase
     {
         private readonly _negative: boolean;
@@ -239,7 +252,7 @@ namespace Tests
             {
                 y.mul(x);
             }
-            console.log("power 20th of 5433298776 at " + super.stopWatchStop().toString() + " ms");
+            console.log("5433298776 to the 20th power at " + super.stopWatchStop().toString() + " ms");
             EXPECT_EQ(this.longInt("502657016439618253936552706323987501462044462964350" +
                                    "812061079995281026604246661831456686060326362690004" +
                                    "0919171814301248338843990986237094445425150910346005" + 
@@ -570,6 +583,20 @@ namespace Tests
             );
 
         }
+
+        public factorialOperator(): void
+        {
+            let x = this.longInt("100").factorial();
+            EXPECT_EQ
+            (
+                this.longInt("9332621544394415268169923885626670049071596826438162" + 
+                             "1468592963895217599993229915608941463976156518286253" +
+                             "697920827223758251185210916864000000000000000000000000"),
+                x
+            );
+
+            EXPECT_THROW( ()=> this.longInt("-10").factorial());
+        }
     }
 
     function RunAllTests(): void
@@ -614,6 +641,7 @@ namespace Tests
             sr.fromReal();
 
             sr.addOperatorPosAndNeg();
+            sr.factorialOperator();
 
             alert("ALL TESTS PASSED");
         }

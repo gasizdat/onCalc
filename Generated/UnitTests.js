@@ -37,6 +37,15 @@ var Tests;
     function EXPECT_FALSE(actual) {
         Assert.equal(false, actual);
     }
+    function EXPECT_THROW(expression) {
+        try {
+            expression();
+        }
+        catch (ex) {
+            return;
+        }
+        throw new EvalError("Expected: throw exception. Actual: normal evaluation");
+    }
     var UnitTestsBase = (function () {
         function UnitTestsBase(negative) {
             var _this = this;
@@ -176,7 +185,7 @@ var Tests;
             for (var i = 0; i < 20; i++) {
                 y.mul(x);
             }
-            console.log("power 20th of 5433298776 at " + _super.prototype.stopWatchStop.call(this).toString() + " ms");
+            console.log("5433298776 to the 20th power at " + _super.prototype.stopWatchStop.call(this).toString() + " ms");
             EXPECT_EQ(this.longInt("502657016439618253936552706323987501462044462964350" +
                 "812061079995281026604246661831456686060326362690004" +
                 "0919171814301248338843990986237094445425150910346005" +
@@ -445,6 +454,14 @@ var Tests;
             this.commutativeAdd("8754740754354385747504875", "-1009999292993838883488000200320350650075060887876700", "-1009999292993838883488000191565609895720675140371825");
             this.commutativeAdd("5477376767648846862290000000000000568676323244565876544243546", "-1234798763234567898700000000098766543", "5477376767648846862289998765201237334108424544565876445477003");
         };
+        signRelatedUnitTests.prototype.factorialOperator = function () {
+            var _this = this;
+            var x = this.longInt("100").factorial();
+            EXPECT_EQ(this.longInt("9332621544394415268169923885626670049071596826438162" +
+                "1468592963895217599993229915608941463976156518286253" +
+                "697920827223758251185210916864000000000000000000000000"), x);
+            EXPECT_THROW(function () { return _this.longInt("-10").factorial(); });
+        };
         return signRelatedUnitTests;
     }(UnitTestsBase));
     function RunAllTests() {
@@ -479,6 +496,7 @@ var Tests;
             sr.greaterOrEqualNegAndNeg();
             sr.fromReal();
             sr.addOperatorPosAndNeg();
+            sr.factorialOperator();
             alert("ALL TESTS PASSED");
         }
         catch (ex) {

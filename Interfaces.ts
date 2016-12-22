@@ -12,6 +12,9 @@ declare namespace onCalc
         add(value: any): any;
         sub(value: any): any;
         mul(value: any): any;
+        factorial(): any;
+        increment(): any;
+        decrement(): any;
         toString(): string;
     }
 

@@ -270,6 +270,23 @@ var onCalc;
             this._negative = this._negative !== value._negative;
             return this;
         };
+        LongInt.prototype.factorial = function () {
+            if (this._negative)
+                throw new EvalError("factorial(n) determined for natural numbers only!");
+            var result = new LongInt(LongInt._one);
+            while (this.greater(LongInt._zero)) {
+                result.mul(this);
+                this.decrement();
+            }
+            this._data = result._data;
+            return this;
+        };
+        LongInt.prototype.increment = function () {
+            return this.add(LongInt._one);
+        };
+        LongInt.prototype.decrement = function () {
+            return this.sub(LongInt._one);
+        };
         LongInt.prototype.toString = function () {
             var ret = "";
             //TS bug value, index, array - implicit any, but fine compiling
@@ -288,6 +305,8 @@ var onCalc;
         return LongInt;
     }());
     LongInt._helper = new onCalc.LongIntHelper();
+    LongInt._zero = new LongInt(0);
+    LongInt._one = new LongInt(1);
     onCalc.LongInt = LongInt;
 })(onCalc || (onCalc = {}));
 //# sourceMappingURL=LongInt.js.map

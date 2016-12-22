@@ -11,6 +11,9 @@ namespace onCalc
     export class LongInt implements Numeric
     {
         private static readonly _helper = new LongIntHelper();
+        private static readonly _zero = new LongInt(0);
+        private static readonly _one = new LongInt(1);
+
         private _negative: boolean;
         private _data: Array<number>;
 
@@ -362,6 +365,30 @@ namespace onCalc
             this._data = result._data;
             this._negative = this._negative !== value._negative;
             return this;
+        }
+
+        public factorial(): LongInt
+        {
+            if (this._negative)
+                throw new EvalError("factorial(n) determined for natural numbers only!");
+            let result = new LongInt(LongInt._one);
+            while (this.greater(LongInt._zero))
+            {
+                result.mul(this);
+                this.decrement();
+            }
+            this._data = result._data;
+            return this;
+        }
+
+        public increment(): any
+        {
+            return this.add(LongInt._one);
+        }
+
+        public decrement(): any
+        {
+            return this.sub(LongInt._one);
         }
 
         public toString(): string
