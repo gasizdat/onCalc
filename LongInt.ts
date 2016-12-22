@@ -2,18 +2,12 @@
 /// <reference path="Interfaces.ts"/>
 
 namespace onCalc
-{
-
-    export type ValueType = string | number | LongInt;
-    
+{    
     //The BCD-like "unlimited" long integer number
     //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
     export class LongInt implements Numeric
     {
         private static readonly _helper = new LongIntHelper();
-        private static readonly _zero = new LongInt(0);
-        private static readonly _one = new LongInt(1);
-
         private _negative: boolean;
         private _data: Array<number>;
 
@@ -59,7 +53,7 @@ namespace onCalc
             }
         }
 
-        private _initialize(value?: ValueType)
+        private _initialize(value?: LongIntValueType)
         {
             let v_type = typeof(value);
             if (!value)
@@ -213,7 +207,7 @@ namespace onCalc
             this._data.shift();
         }*/
 
-        public constructor(readonly value?: ValueType)
+        public constructor(readonly value?: LongIntValueType)
         {
             this._initialize(value);
         }
@@ -222,7 +216,7 @@ namespace onCalc
 
         public readonly negative = () => this._negative;
 
-        public assigned(value?: ValueType) : LongInt
+        public assigned(value?: LongIntValueType) : LongInt
         {
             this._initialize(value);
             return this;
@@ -371,8 +365,8 @@ namespace onCalc
         {
             if (this._negative)
                 throw new EvalError("factorial(n) determined for natural numbers only!");
-            let result = new LongInt(LongInt._one);
-            while (this.greater(LongInt._zero))
+            let result = new LongInt(LongInt.one);
+            while (this.greater(LongInt.zero))
             {
                 result.mul(this);
                 this.decrement();
@@ -383,12 +377,18 @@ namespace onCalc
 
         public increment(): any
         {
-            return this.add(LongInt._one);
+            return this.add(LongInt.one);
         }
 
         public decrement(): any
         {
-            return this.sub(LongInt._one);
+            return this.sub(LongInt.one);
+        }
+
+        public negate(): boolean
+        {
+            this._negative = !this._negative;
+            return this._negative;
         }
 
         public toString(): string
@@ -409,7 +409,10 @@ namespace onCalc
                 }
             });
             return this._negative ? (LongInt._helper.negativeSign + ret) : ret;
-        } 
+        }
+
+        public static readonly zero = new LongInt(0);
+        public static readonly one = new LongInt(1);
     }
 }
 

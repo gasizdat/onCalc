@@ -287,6 +287,10 @@ var onCalc;
         LongInt.prototype.decrement = function () {
             return this.sub(LongInt._one);
         };
+        LongInt.prototype.negate = function () {
+            this._negative = !this._negative;
+            return this._negative;
+        };
         LongInt.prototype.toString = function () {
             var ret = "";
             //TS bug value, index, array - implicit any, but fine compiling
