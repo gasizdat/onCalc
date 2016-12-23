@@ -1,7 +1,8 @@
 namespace onCalc
 {
-    export class LongIntHelper
+    export class LongHelper
     {
+        private static readonly _instance = new LongHelper();
         private readonly _splitter: RegExp;
         constructor()
         {
@@ -35,7 +36,8 @@ namespace onCalc
             }
         }
 
-        public readonly negativeSign = "-";
+        public readonly decimalSeparators = [1.1.toLocaleString().charAt(1), "."];
+        public readonly negativeSign = (-1).toLocaleString().charAt(0);
         public readonly leadingZeros: string[];
         public readonly digitAbs: number; //Absolute value of LongInt digit.
         public readonly digitLength: number; //String length, for representation one digit (use in parse method)
@@ -56,6 +58,10 @@ namespace onCalc
         public isNegative(value: string) : boolean
         {
             return value.charAt(0) === this.negativeSign;
+        }
+        public static instance(): LongHelper
+        {
+            return LongHelper._instance;
         }
     }
 }

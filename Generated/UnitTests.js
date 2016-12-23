@@ -1,3 +1,4 @@
+/// <reference path="LongRational.ts"/>
 /// <reference path="LongInt.ts"/>
 /// <reference path="Helpers.ts"/>
 var __extends = (this && this.__extends) || function (d, b) {
@@ -465,6 +466,8 @@ var Tests;
         return signRelatedUnitTests;
     }(UnitTestsBase));
     function RunAllTests() {
+        var r = new onCalc.LongRational(300.665);
+        console.log(r);
         try {
             var positive = new AnySignUnitTests(false);
             positive.numberToString();

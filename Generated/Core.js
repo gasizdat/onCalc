@@ -6,6 +6,8 @@ var onCalc;
             Core.emplaceScript(pack_dir + "/" + "Helpers.js", async);
             Core.emplaceScript(pack_dir + "/" + "LongInt.js", async);
             Core.emplaceScript(pack_dir + "/" + "Interfaces.js", async);
+            Core.emplaceScript(pack_dir + "/" + "LongRational.js", async);
+            //Must load after all other
             Core.emplaceScript(pack_dir + "/" + "UnitTests.js", async);
         }
         Core.emplaceScript = function (name, async) {

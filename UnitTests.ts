@@ -1,3 +1,4 @@
+/// <reference path="LongRational.ts"/>
 /// <reference path="LongInt.ts"/>
 /// <reference path="Helpers.ts"/>
 
@@ -601,6 +602,9 @@ namespace Tests
 
     function RunAllTests(): void
     {
+        let r = new onCalc.LongRational(300.665);
+        console.log(r);
+        
         try
         {
             let positive = new AnySignUnitTests(false);

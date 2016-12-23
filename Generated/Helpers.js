@@ -1,8 +1,9 @@
 var onCalc;
 (function (onCalc) {
-    var LongIntHelper = (function () {
-        function LongIntHelper() {
-            this.negativeSign = "-";
+    var LongHelper = (function () {
+        function LongHelper() {
+            this.decimalSeparators = [1.1.toLocaleString().charAt(1), "."];
+            this.negativeSign = (-1).toLocaleString().charAt(0);
             /* Evaluation of precision of the number is not to lose accuracy of calculations.
                It must be carried out the system of equations:
              ╓ N = 10^k
@@ -30,7 +31,7 @@ var onCalc;
                 zeros += "0";
             }
         }
-        LongIntHelper.prototype.tokenize = function (value) {
+        LongHelper.prototype.tokenize = function (value) {
             var head_size = value.length % this.digitLength;
             var ret;
             if (head_size && (head_size < value.length)) {
@@ -41,11 +42,15 @@ var onCalc;
             }
             return ret;
         };
-        LongIntHelper.prototype.isNegative = function (value) {
+        LongHelper.prototype.isNegative = function (value) {
             return value.charAt(0) === this.negativeSign;
         };
-        return LongIntHelper;
+        LongHelper.instance = function () {
+            return LongHelper._instance;
+        };
+        return LongHelper;
     }());
-    onCalc.LongIntHelper = LongIntHelper;
+    LongHelper._instance = new LongHelper();
+    onCalc.LongHelper = LongHelper;
 })(onCalc || (onCalc = {}));
 //# sourceMappingURL=Helpers.js.map

@@ -6,8 +6,9 @@ namespace onCalc
 {    
     //The rational number with "unlimited" long nomitator and denominator.
     //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
-    export class LongRational implements Rational
+    export class LongRational //implements Rational
     {
+        private static readonly _helper = LongHelper.instance();
         private _nominator: LongInt;
         private _denominator: LongInt;
         
@@ -15,7 +16,7 @@ namespace onCalc
         {
             if (value !== Math.floor(value))
             {
-
+                console.log(LongRational._helper.decimalSeparators.toString());
             }
             else
             {
@@ -26,17 +27,19 @@ namespace onCalc
 
         private _initializeString(value: string): void
         {
-
+            console.log(value);
         }
 
         private _initializeLongInt(value: LongInt): void
         {
-
+            this._nominator = new LongInt(value);
+            this._denominator = new LongInt(LongInt.one);
         }
 
         private _initializeLongRational(value: LongRational): void
         {
-
+            this._nominator = new LongInt(value._nominator);
+            this._denominator = new LongInt(value._denominator);
         }
 
         private _initialize(value: LongRationalValueType)

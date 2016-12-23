@@ -273,8 +273,8 @@ var onCalc;
         LongInt.prototype.factorial = function () {
             if (this._negative)
                 throw new EvalError("factorial(n) determined for natural numbers only!");
-            var result = new LongInt(LongInt._one);
-            while (this.greater(LongInt._zero)) {
+            var result = new LongInt(LongInt.one);
+            while (this.greater(LongInt.zero)) {
                 result.mul(this);
                 this.decrement();
             }
@@ -282,10 +282,10 @@ var onCalc;
             return this;
         };
         LongInt.prototype.increment = function () {
-            return this.add(LongInt._one);
+            return this.add(LongInt.one);
         };
         LongInt.prototype.decrement = function () {
-            return this.sub(LongInt._one);
+            return this.sub(LongInt.one);
         };
         LongInt.prototype.negate = function () {
             this._negative = !this._negative;
@@ -308,9 +308,9 @@ var onCalc;
         };
         return LongInt;
     }());
-    LongInt._helper = new onCalc.LongIntHelper();
-    LongInt._zero = new LongInt(0);
-    LongInt._one = new LongInt(1);
+    LongInt._helper = onCalc.LongHelper.instance();
+    LongInt.zero = new LongInt(0);
+    LongInt.one = new LongInt(1);
     onCalc.LongInt = LongInt;
 })(onCalc || (onCalc = {}));
 //# sourceMappingURL=LongInt.js.map

@@ -7,7 +7,7 @@ namespace onCalc
     //Remarks: doesn't use get/set accessors for ECMAScript-3 compliance.
     export class LongInt implements Numeric
     {
-        private static readonly _helper = new LongIntHelper();
+        private static readonly _helper = LongHelper.instance();
         private _negative: boolean;
         private _data: Array<number>;
 
