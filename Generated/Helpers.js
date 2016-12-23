@@ -54,4 +54,87 @@ var onCalc;
     LongHelper._instance = new LongHelper();
     onCalc.LongHelper = LongHelper;
 })(onCalc || (onCalc = {}));
+var Tests;
+(function (Tests) {
+    var Assert = (function () {
+        function Assert() {
+        }
+        Assert.equal = function (expected, actual) {
+            var assert;
+            switch (typeof (expected)) {
+                case "string":
+                case "number":
+                case "boolean":
+                    assert = expected === actual;
+                    break;
+                default:
+                    assert = expected.equal(actual);
+                    break;
+            }
+            if (!assert) {
+                throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
+            }
+        };
+        return Assert;
+    }());
+    Tests.Assert = Assert;
+    function EXPECT_EQ(expected, actual) {
+        Assert.equal(expected, actual);
+    }
+    Tests.EXPECT_EQ = EXPECT_EQ;
+    function EXPECT_TRUE(actual) {
+        Assert.equal(true, actual);
+    }
+    Tests.EXPECT_TRUE = EXPECT_TRUE;
+    function EXPECT_FALSE(actual) {
+        Assert.equal(false, actual);
+    }
+    Tests.EXPECT_FALSE = EXPECT_FALSE;
+    function EXPECT_THROW(expression) {
+        try {
+            expression();
+        }
+        catch (ex) {
+            return;
+        }
+        throw new EvalError("Expected: throw exception. Actual: normal evaluation");
+    }
+    Tests.EXPECT_THROW = EXPECT_THROW;
+    var UnitTestsBase = (function () {
+        function UnitTestsBase(negative) {
+            var _this = this;
+            this.negative = function () { return _this._negative; };
+            this._negative = negative;
+        }
+        UnitTestsBase.prototype.longInt = function (value) {
+            switch (typeof (value)) {
+                case "string":
+                    return new onCalc.LongInt(this.str(value));
+                case "number":
+                    return new onCalc.LongInt(this.negative() ? -value : value);
+                default:
+                    throw new Error("Initialize value type not supported");
+            }
+        };
+        UnitTestsBase.prototype.str = function (value) {
+            return ((this.negative() && value !== "0") ? ("-" + value) : value);
+        };
+        UnitTestsBase.prototype.commutativeAdd = function (x, y, result) {
+            var lx = this.longInt(x);
+            var ly = this.longInt(y);
+            var lresult = this.longInt(result);
+            EXPECT_EQ(lresult, lx.add(ly));
+            lx = this.longInt(x);
+            EXPECT_EQ(lresult, ly.add(lx));
+        };
+        UnitTestsBase.prototype.stopWatchStart = function () {
+            this._StopWatch = Date.now();
+        };
+        UnitTestsBase.prototype.stopWatchStop = function () {
+            return this._StopWatch = Date.now() - this._StopWatch;
+        };
+        return UnitTestsBase;
+    }());
+    Tests.UnitTestsBase = UnitTestsBase;
+})(Tests || (Tests = {}));
 //# sourceMappingURL=Helpers.js.map

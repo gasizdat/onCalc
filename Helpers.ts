@@ -66,3 +66,108 @@ namespace onCalc
         }
     }
 }
+
+namespace Tests
+{
+    export class Assert
+    {  
+        public static equal(expected: string|onCalc.LongInt|number|boolean, actual: string|onCalc.LongInt|number|boolean): void
+        {
+            let assert: boolean;
+            switch(typeof(expected))
+            {
+                case "string":
+                case "number":
+                case "boolean":
+                    assert = expected === actual;
+                    break;
+                default: 
+                    assert = (<onCalc.LongInt>expected).equal(<onCalc.LongInt>actual);
+                    break;
+            }
+            if(!assert)
+            {
+                throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
+            }
+        }
+    }
+
+    export function EXPECT_EQ<T>(expected: T, actual: T): void
+    {
+        Assert.equal(<any>expected, <any>actual);
+    }
+
+    export function EXPECT_TRUE(actual: boolean): void
+    {
+        Assert.equal(true, actual);
+    }
+
+    export function EXPECT_FALSE(actual: boolean): void
+    {
+        Assert.equal(false, actual);
+    }
+
+    export function EXPECT_THROW(expression: any)
+    {
+        try
+        {
+            expression();
+        }
+        catch(ex)
+        {
+            return;
+        }
+        throw new EvalError("Expected: throw exception. Actual: normal evaluation");
+    }
+
+    export class UnitTestsBase
+    {
+        private readonly _negative: boolean;
+        private _StopWatch: number;
+        protected constructor(negative: boolean)
+        {
+            this._negative = negative;
+        }
+
+        protected longInt(value: number | string): onCalc.LongInt
+        {
+            switch(typeof(value))
+            {
+                case "string":
+                    return new onCalc.LongInt(this.str(<string>value));
+                case "number":
+                    return new onCalc.LongInt(this.negative() ? -value : value);
+                default:
+                    throw new Error("Initialize value type not supported");
+            }
+        }
+
+        protected str(value: string): string
+        {
+            return ((this.negative() && value !== "0") ? ("-" + value) : value);
+        }
+
+        protected readonly negative = () => this._negative;
+    
+        protected commutativeAdd(x: string, y: string, result: string): void
+        {
+            let lx = this.longInt(x);
+            let ly = this.longInt(y);
+            let lresult = this.longInt(result);
+            EXPECT_EQ(lresult, lx.add(ly));
+
+            lx = this.longInt(x);
+            EXPECT_EQ(lresult, ly.add(lx));
+        }
+
+        protected stopWatchStart(): void
+        {
+            this._StopWatch = Date.now();
+        }
+
+        protected stopWatchStop(): number
+        {
+            return this._StopWatch = Date.now() - this._StopWatch;
+        }
+    }
+}

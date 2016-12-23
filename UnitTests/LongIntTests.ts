@@ -1,114 +1,12 @@
-/// <reference path="LongRational.ts"/>
-/// <reference path="LongInt.ts"/>
-/// <reference path="Helpers.ts"/>
+/// <reference path="../LongRational.ts"/>
+/// <reference path="../LongInt.ts"/>
+/// <reference path="../Helpers.ts"/>
 
 namespace Tests
 {
-    class Assert
-    {  
-        public static equal(expected: string|onCalc.LongInt|number|boolean, actual: string|onCalc.LongInt|number|boolean): void
-        {
-            let assert: boolean;
-            switch(typeof(expected))
-            {
-                case "string":
-                case "number":
-                case "boolean":
-                    assert = expected === actual;
-                    break;
-                default: 
-                    assert = (<onCalc.LongInt>expected).equal(<onCalc.LongInt>actual);
-                    break;
-            }
-            if(!assert)
-            {
-                throw new EvalError("Expected: " + expected.toString() + ". Actual: " + actual.toString());
-            }
-        }
-    }
-
-    function EXPECT_EQ<T>(expected: T, actual: T): void
+    export class AnySignUnitTests extends UnitTestsBase
     {
-        Assert.equal(<any>expected, <any>actual);
-    }
-
-    function EXPECT_TRUE(actual: boolean): void
-    {
-        Assert.equal(true, actual);
-    }
-
-    function EXPECT_FALSE(actual: boolean): void
-    {
-        Assert.equal(false, actual);
-    }
-
-    function EXPECT_THROW(expression: any)
-    {
-        try
-        {
-            expression();
-        }
-        catch(ex)
-        {
-            return;
-        }
-        throw new EvalError("Expected: throw exception. Actual: normal evaluation");
-    }
-
-    class UnitTestsBase
-    {
-        private readonly _negative: boolean;
-        private _StopWatch: number;
-        constructor(negative: boolean)
-        {
-            this._negative = negative;
-        }
-
-        protected longInt(value: number | string): onCalc.LongInt
-        {
-            switch(typeof(value))
-            {
-                case "string":
-                    return new onCalc.LongInt(this.str(<string>value));
-                case "number":
-                    return new onCalc.LongInt(this.negative() ? -value : value);
-                default:
-                    throw new Error("Initialize value type not supported");
-            }
-        }
-
-        protected str(value: string): string
-        {
-            return ((this.negative() && value !== "0") ? ("-" + value) : value);
-        }
-
-        protected readonly negative = () => this._negative;
-    
-        protected commutativeAdd(x: string, y: string, result: string): void
-        {
-            let lx = this.longInt(x);
-            let ly = this.longInt(y);
-            let lresult = this.longInt(result);
-            EXPECT_EQ(lresult, lx.add(ly));
-
-            lx = this.longInt(x);
-            EXPECT_EQ(lresult, ly.add(lx));
-        }
-
-        protected stopWatchStart(): void
-        {
-            this._StopWatch = Date.now();
-        }
-
-        protected stopWatchStop(): number
-        {
-            return this._StopWatch = Date.now() - this._StopWatch;
-        }
-    }
-
-    class AnySignUnitTests extends UnitTestsBase
-    {
-        constructor(negative: boolean)
+        public constructor(negative: boolean)
         {
             super(negative);
         }
@@ -261,9 +159,9 @@ namespace Tests
         }
     }
 
-    class signRelatedUnitTests extends UnitTestsBase
+    export class signRelatedUnitTests extends UnitTestsBase
     {
-        constructor()
+        public constructor()
         {
             super(false);
         }
@@ -599,63 +497,5 @@ namespace Tests
             EXPECT_THROW( ()=> this.longInt("-10").factorial());
         }
     }
-
-    function RunAllTests(): void
-    {
-        let r = new onCalc.LongRational(-300.665);
-        console.log(r);
-        r = new onCalc.LongRational(300e30);
-        console.log(r);
-        
-        try
-        {
-            let positive = new AnySignUnitTests(false);
-            positive.numberToString();
-            positive.equalNumberAndStringConstruction();
-            positive.equalOperatorTrue();
-            positive.equalOperatorFalse();
-            positive.addOperator();
-            positive.mulOperator();
-
-            let negative = new AnySignUnitTests(true);
-            negative.numberToString();
-            negative.equalNumberAndStringConstruction();
-            negative.equalOperatorTrue();
-            negative.equalOperatorFalse();
-            negative.addOperator();
-            negative.mulOperator();
-
-            let sr = new signRelatedUnitTests();
-            sr.equalOperatorFalse();
-
-            sr.lessPosAndPos();
-            sr.lessNegAndNeg();
-            sr.lessPosAndNeg();
-
-            sr.lessOrEqualPosAndPos();
-            sr.lessOrEqualPosAndNeg();
-            sr.lessOrEqualNegAndNeg();
-
-            sr.greaterPosAndPos();
-            sr.greaterPosAndNeg();
-            sr.greateNegAndNeg();
-
-            sr.greateOrEqualPosAndPos();
-            sr.greaterOrEqualPosAndNeg();
-            sr.greaterOrEqualNegAndNeg();
-
-            sr.fromReal();
-
-            sr.addOperatorPosAndNeg();
-            sr.factorialOperator();
-
-            alert("ALL TESTS PASSED");
-        }
-        catch(ex)
-        {
-            alert("Test failed with message: " + (<Error>ex).stack);
-        }
-    }
-    RunAllTests();
 }
 
