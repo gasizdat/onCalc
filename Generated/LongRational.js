@@ -12,20 +12,21 @@ var onCalc;
             this._initialize(value);
         }
         LongRational.prototype._initializeNumber = function (value) {
-            if (value !== Math.floor(value)) {
-                console.log(LongRational._helper.decimalSeparators.toString());
+            var e = 1;
+            while (value % 1) {
+                value *= LongRational._helper.decimalRank;
+                e *= LongRational._helper.decimalRank;
             }
-            else {
-                this._nominator = new onCalc.LongInt(value);
-                this._denominator = new onCalc.LongInt(onCalc.LongInt.one);
-            }
+            this._nominator = new onCalc.LongInt(value);
+            this._denominator = new onCalc.LongInt(e);
         };
         LongRational.prototype._initializeString = function (value) {
-            console.log(value);
+            var i = value.indexOf(LongRational._helper.decimalSeparator);
+            console.log(i);
         };
         LongRational.prototype._initializeLongInt = function (value) {
             this._nominator = new onCalc.LongInt(value);
-            this._denominator = new onCalc.LongInt(onCalc.LongInt.one);
+            this._denominator = new onCalc.LongInt(1);
         };
         LongRational.prototype._initializeLongRational = function (value) {
             this._nominator = new onCalc.LongInt(value._nominator);
@@ -51,6 +52,12 @@ var onCalc;
             else {
                 throw new Error("Unsupported value type " + typeof (value));
             }
+        };
+        LongRational.prototype.negate = function () {
+            return this._nominator.negate();
+        };
+        LongRational.prototype.negative = function () {
+            return this.negative();
         };
         return LongRational;
     }());

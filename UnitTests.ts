@@ -602,7 +602,9 @@ namespace Tests
 
     function RunAllTests(): void
     {
-        let r = new onCalc.LongRational(300.665);
+        let r = new onCalc.LongRational(-300.665);
+        console.log(r);
+        r = new onCalc.LongRational(300e30);
         console.log(r);
         
         try

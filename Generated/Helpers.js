@@ -2,7 +2,8 @@ var onCalc;
 (function (onCalc) {
     var LongHelper = (function () {
         function LongHelper() {
-            this.decimalSeparators = [1.1.toLocaleString().charAt(1), "."];
+            this.decimalRank = 1e1;
+            this.decimalSeparator = 1.1.toLocaleString().charAt(1);
             this.negativeSign = (-1).toLocaleString().charAt(0);
             /* Evaluation of precision of the number is not to lose accuracy of calculations.
                It must be carried out the system of equations:

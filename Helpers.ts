@@ -36,7 +36,8 @@ namespace onCalc
             }
         }
 
-        public readonly decimalSeparators = [1.1.toLocaleString().charAt(1), "."];
+        public readonly decimalRank = 1e1;
+        public readonly decimalSeparator = 1.1.toLocaleString().charAt(1);
         public readonly negativeSign = (-1).toLocaleString().charAt(0);
         public readonly leadingZeros: string[];
         public readonly digitAbs: number; //Absolute value of LongInt digit.

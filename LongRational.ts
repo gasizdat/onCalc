@@ -14,26 +14,26 @@ namespace onCalc
         
         private _initializeNumber(value: number): void
         {
-            if (value !== Math.floor(value))
+            let e = 1;
+            while (value % 1)
             {
-                console.log(LongRational._helper.decimalSeparators.toString());
+                value *= LongRational._helper.decimalRank;
+                e *= LongRational._helper.decimalRank;
             }
-            else
-            {
-                this._nominator = new LongInt(value);
-                this._denominator = new LongInt(LongInt.one);
-            }
+            this._nominator = new LongInt(value);
+            this._denominator = new LongInt(e);
         }
 
         private _initializeString(value: string): void
         {
-            console.log(value);
+            let i = value.indexOf(LongRational._helper.decimalSeparator);
+            console.log(i);
         }
 
         private _initializeLongInt(value: LongInt): void
         {
             this._nominator = new LongInt(value);
-            this._denominator = new LongInt(LongInt.one);
+            this._denominator = new LongInt(1);
         }
 
         private _initializeLongRational(value: LongRational): void
@@ -75,5 +75,15 @@ namespace onCalc
         {
             this._initialize(value);
         }
+
+        public negate(): boolean
+        {
+            return this._nominator.negate();
+        }
+        public negative(): boolean
+        {
+            return this.negative();
+        }
+
     }
 }

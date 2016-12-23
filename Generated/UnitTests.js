@@ -466,7 +466,9 @@ var Tests;
         return signRelatedUnitTests;
     }(UnitTestsBase));
     function RunAllTests() {
-        var r = new onCalc.LongRational(300.665);
+        var r = new onCalc.LongRational(-300.665);
+        console.log(r);
+        r = new onCalc.LongRational(300e30);
         console.log(r);
         try {
             var positive = new AnySignUnitTests(false);
