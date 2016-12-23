@@ -14,6 +14,8 @@ namespace onCalc
         
         private _initializeNumber(value: number): void
         {
+            if (!isFinite(value))
+                throw EvalError("Initialize value is infinite or NaN");
             let e = 1;
             while (value % 1)
             {
@@ -26,8 +28,27 @@ namespace onCalc
 
         private _initializeString(value: string): void
         {
-            let i = value.indexOf(LongRational._helper.decimalSeparator);
-            console.log(i);
+            if (!value)
+            {
+                this._nominator = new LongInt(0);
+                this._denominator = new LongInt(1);
+            }
+            else
+            {
+                let chunks = value.split(LongRational._helper.naturalSeparator);
+                if (chunks.length === 1)
+                {
+                    this._nominator = new LongInt(chunks[0]);
+                    this._denominator = new LongInt(1);
+                }
+                else if (chunks.length === 2)
+                {
+                    this._nominator = new LongInt(chunks[0]);
+                    this._denominator = new LongInt(chunks[1]);
+                }
+                else
+                    throw EvalError(`Value '${value}' isn't valid long rational number.`); 
+            }
         }
 
         private _initializeLongInt(value: LongInt): void
@@ -80,10 +101,18 @@ namespace onCalc
         {
             return this._nominator.negate();
         }
+
         public negative(): boolean
         {
             return this.negative();
         }
 
+        public toString(): string
+        {
+            if(this._denominator.equal(LongInt.one))
+                return this._nominator.toString();
+            else
+                return `${this._nominator.toString()}${LongRational._helper.naturalSeparator}${this._denominator.toString()}`;
+        }
     }
 }

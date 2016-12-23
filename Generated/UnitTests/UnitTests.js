@@ -1,9 +1,10 @@
 /// <reference path="LongIntTests.ts"/>
+/// <reference path="../LongRational.ts"/>
 function RunAllTests() {
     var r = new onCalc.LongRational(-300.665);
-    console.log(r);
+    console.log(r.toString());
     r = new onCalc.LongRational(300e30);
-    console.log(r);
+    console.log(r.toString());
     try {
         var positive = new Tests.AnySignUnitTests(false);
         positive.numberToString();

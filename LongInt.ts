@@ -75,7 +75,7 @@ namespace onCalc
             }
             else
             {
-                throw new Error("Unsupported value type " + typeof(value));
+                throw new Error(`Unsupported value type ${value}`);
             }
         }
 

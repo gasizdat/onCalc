@@ -1,12 +1,12 @@
 /// <reference path="LongIntTests.ts"/>
+/// <reference path="../LongRational.ts"/>
 
 function RunAllTests(): void
 {
     let r = new onCalc.LongRational(-300.665);
-    console.log(r);
+    console.log(r.toString());
     r = new onCalc.LongRational(300e30);
-    console.log(r);
-    
+    console.log(r.toString());
     try
     {
         let positive = new Tests.AnySignUnitTests(false);
@@ -53,7 +53,7 @@ function RunAllTests(): void
     }
     catch(ex)
     {
-        alert("Test failed with message: " + (<Error>ex).stack);
+        alert(`Test failed with message: ${(<Error>ex).stack}`);
     }
 }
 RunAllTests();

@@ -66,7 +66,7 @@ var onCalc;
                 this._data = value._data.slice(0);
             }
             else {
-                throw new Error("Unsupported value type " + typeof (value));
+                throw new Error("Unsupported value type " + value);
             }
         };
         LongInt.prototype._absoluteComparison = function (value) {

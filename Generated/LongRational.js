@@ -12,6 +12,8 @@ var onCalc;
             this._initialize(value);
         }
         LongRational.prototype._initializeNumber = function (value) {
+            if (!isFinite(value))
+                throw EvalError("Initialize value is infinite or NaN");
             var e = 1;
             while (value % 1) {
                 value *= LongRational._helper.decimalRank;
@@ -21,8 +23,23 @@ var onCalc;
             this._denominator = new onCalc.LongInt(e);
         };
         LongRational.prototype._initializeString = function (value) {
-            var i = value.indexOf(LongRational._helper.decimalSeparator);
-            console.log(i);
+            if (!value) {
+                this._nominator = new onCalc.LongInt(0);
+                this._denominator = new onCalc.LongInt(1);
+            }
+            else {
+                var chunks = value.split(LongRational._helper.naturalSeparator);
+                if (chunks.length === 1) {
+                    this._nominator = new onCalc.LongInt(chunks[0]);
+                    this._denominator = new onCalc.LongInt(1);
+                }
+                else if (chunks.length === 2) {
+                    this._nominator = new onCalc.LongInt(chunks[0]);
+                    this._denominator = new onCalc.LongInt(chunks[1]);
+                }
+                else
+                    throw EvalError("Value '" + value + "' isn't valid long rational number.");
+            }
         };
         LongRational.prototype._initializeLongInt = function (value) {
             this._nominator = new onCalc.LongInt(value);
@@ -58,6 +75,12 @@ var onCalc;
         };
         LongRational.prototype.negative = function () {
             return this.negative();
+        };
+        LongRational.prototype.toString = function () {
+            if (this._denominator.equal(onCalc.LongInt.one))
+                return this._nominator.toString();
+            else
+                return "" + this._nominator.toString() + LongRational._helper.naturalSeparator + this._denominator.toString();
         };
         return LongRational;
     }());
