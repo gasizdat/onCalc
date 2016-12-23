@@ -411,6 +411,16 @@ namespace onCalc
             return this._negative ? (LongInt._helper.negativeSign + ret) : ret;
         }
 
+        public isOdd(): boolean
+        {
+            return (this._data[0] % 2) !== 0;
+        }
+
+        public isEven(): boolean
+        {
+            return (this._data[0] % 2) === 0;
+        }
+
         public static readonly zero = new LongInt(0);
         public static readonly one = new LongInt(1);
     }
