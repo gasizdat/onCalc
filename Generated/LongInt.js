@@ -16,6 +16,29 @@ var onCalc;
             this.negative = function () { return _this._negative; };
             this._initialize(value);
         }
+        LongInt._absoluteSubFromGreate = function (x, y) {
+            var s = x.size() - 1;
+            var vs = y.size();
+            var slice_point = -1;
+            for (var i = 0; i <= s; i++) {
+                if (i < vs) {
+                    x._data[i] -= y._data[i];
+                }
+                if (x._data[i] < 0) {
+                    x._data[i] += LongInt._helper.digitAbs;
+                    x._data[i + 1] -= 1;
+                }
+                if (x._data[i] === 0) {
+                    slice_point = i;
+                }
+                else {
+                    slice_point = -1;
+                }
+            }
+            if (slice_point > 0) {
+                x._data = x._data.slice(0, slice_point);
+            }
+        };
         LongInt.prototype._initializeNumber = function (value) {
             if (!isFinite(value))
                 throw EvalError("Initialize value is infinite or NaN");
@@ -133,27 +156,7 @@ var onCalc;
                     this._data = tmp_data.slice(0);
                     this._negative = true;
                 }
-                var s = this.size() - 1;
-                var vs = value.size();
-                var slice_point = -1;
-                for (var i = 0; i <= s; i++) {
-                    if (i < vs) {
-                        this._data[i] -= value._data[i];
-                    }
-                    if (this._data[i] < 0) {
-                        this._data[i] += LongInt._helper.digitAbs;
-                        this._data[i + 1] -= 1;
-                    }
-                    if (this._data[i] === 0) {
-                        slice_point = i;
-                    }
-                    else {
-                        slice_point = -1;
-                    }
-                }
-                if (slice_point > 0) {
-                    this._data = this._data.slice(0, slice_point);
-                }
+                LongInt._absoluteSubFromGreate(this, value);
             }
         };
         LongInt.prototype._absoluteShiftUp = function (digits) {
@@ -306,11 +309,69 @@ var onCalc;
             });
             return this._negative ? (LongInt._helper.negativeSign + ret) : ret;
         };
+        LongInt.prototype.isOdd = function () {
+            return (this._data[0] % 2) !== 0;
+        };
+        LongInt.prototype.isEven = function () {
+            return (this._data[0] % 2) === 0;
+        };
+        LongInt.prototype.bisect = function () {
+            this._data.forEach(function (v, i, a) {
+                if (i > 0 && (v % 2) !== 0) {
+                    a[i - 1] += LongInt._helper.decimalRank / 2;
+                }
+                a[i] = v / 2;
+            });
+            return this;
+        };
+        LongInt.gcd = function (x, y) {
+            /*
+                        Very slow algorithm
+                        while(x.notequal(y))
+                        {
+                            if (x.greater(y))
+                                LongInt._absoluteSubFromGreate(x, y);
+                            else
+                                LongInt._absoluteSubFromGreate(y, x);
+                        }
+                        return x;
+            */
+            if (x.equal(y)) {
+                return x;
+            }
+            else if (x.equal(LongInt.one) || y.equal(LongInt.one)) {
+                return LongInt.one;
+            }
+            else {
+                var x_even = x.isEven();
+                var y_even = y.isEven();
+                if (x_even) {
+                    if (!y_even) {
+                        return LongInt.gcd(x.bisect(), y);
+                    }
+                    else {
+                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two);
+                    }
+                }
+                else if (!y_even) {
+                    return LongInt.gcd(x, y.bisect());
+                }
+                else if (x.greater(y)) {
+                    LongInt._absoluteSubFromGreate(x, y);
+                    return LongInt.gcd(x.bisect(), y);
+                }
+                else {
+                    LongInt._absoluteSubFromGreate(y, x);
+                    return LongInt.gcd(y.bisect(), x);
+                }
+            }
+        };
         return LongInt;
     }());
     LongInt._helper = onCalc.LongHelper.instance();
     LongInt.zero = new LongInt(0);
     LongInt.one = new LongInt(1);
+    LongInt.two = new LongInt(2);
     onCalc.LongInt = LongInt;
 })(onCalc || (onCalc = {}));
 //# sourceMappingURL=LongInt.js.map

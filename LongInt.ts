@@ -11,6 +11,37 @@ namespace onCalc
         private _negative: boolean;
         private _data: Array<number>;
 
+        private static _absoluteSubFromGreate(x: LongInt, y: LongInt): void
+        {
+            let s = x.size() - 1;
+            let vs = y.size();
+            let slice_point = -1;
+            for(let i = 0; i <= s; i++)
+            {
+                if (i < vs)
+                {
+                    x._data[i] -= y._data[i];
+                }
+                if (x._data[i] < 0)
+                {
+                    x._data[i] += LongInt._helper.digitAbs;
+                    x._data[i + 1] -= 1;
+                }
+                if (x._data[i] === 0)
+                {
+                    slice_point = i;
+                }
+                else
+                {
+                    slice_point = -1;
+                }
+            }
+            if (slice_point > 0)
+            {
+                x._data = x._data.slice(0, slice_point);
+            }
+        }
+
         private _initializeNumber(value: number)
         {
             if (!isFinite(value))
@@ -164,33 +195,7 @@ namespace onCalc
                     this._negative = true;
                 }
 
-                let s = this.size() - 1;
-                let vs = value.size();
-                let slice_point = -1;
-                for(let i = 0; i <= s; i++)
-                {
-                    if (i < vs)
-                    {
-                        this._data[i] -= value._data[i];
-                    }
-                    if (this._data[i] < 0)
-                    {
-                        this._data[i] += LongInt._helper.digitAbs;
-                        this._data[i + 1] -= 1;
-                    }
-                    if (this._data[i] === 0)
-                    {
-                        slice_point = i;
-                    }
-                    else
-                    {
-                        slice_point = -1;
-                    }
-                }
-                if (slice_point > 0)
-                {
-                    this._data = this._data.slice(0, slice_point);
-                }
+                LongInt._absoluteSubFromGreate(this, value);
             }
         }
 
@@ -206,7 +211,7 @@ namespace onCalc
         {
             this._data.shift();
         }*/
-
+        
         public constructor(readonly value?: LongIntValueType)
         {
             this._initialize(value);
@@ -421,8 +426,75 @@ namespace onCalc
             return (this._data[0] % 2) === 0;
         }
 
+        public bisect(): LongInt
+        {
+            this._data.forEach((v: number, i: number, a: Array<number>)=>
+            {
+                if (i > 0 && (v % 2) !== 0)
+                {
+                    a[i - 1] += LongInt._helper.decimalRank / 2;
+                }
+                a[i] = v / 2;
+            });
+            return this;
+        }
+
+        public static gcd(x: LongInt, y: LongInt): LongInt
+        {
+/*
+            Very slow algorithm. O(2(x - y)
+            while(x.notequal(y))
+            {
+                if (x.greater(y))
+                    LongInt._absoluteSubFromGreate(x, y);
+                else
+                    LongInt._absoluteSubFromGreate(y, x);
+            }
+            return x;
+*/
+            if (x.equal(y))
+            {
+                return x;
+            }
+            else if(x.equal(LongInt.one) || y.equal(LongInt.one))
+            {
+                return LongInt.one;
+            }
+            else
+            {
+                let x_even = x.isEven();
+                let y_even = y.isEven();
+                if (x_even)
+                {
+                    if (!y_even)
+                    {
+                        return LongInt.gcd(x.bisect(), y); 
+                    }
+                    else
+                    {
+                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two);
+                    }
+                }
+                else if (!y_even)
+                {
+                    return LongInt.gcd(x, y.bisect());
+                }
+                else if(x.greater(y))
+                {
+                    LongInt._absoluteSubFromGreate(x, y);
+                    return LongInt.gcd(x.bisect(), y);
+                }
+                else
+                {
+                    LongInt._absoluteSubFromGreate(y, x);
+                    return LongInt.gcd(y.bisect(), x);
+                }
+            }
+        }
+
         public static readonly zero = new LongInt(0);
         public static readonly one = new LongInt(1);
+        public static readonly two = new LongInt(2);
     }
 }
 

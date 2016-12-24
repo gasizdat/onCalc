@@ -91,7 +91,7 @@ namespace onCalc
                 throw new Error("Unsupported value type " + typeof(value));
             }
         }
-
+        
         constructor(readonly value: LongRationalValueType)
         {
             this._initialize(value);
