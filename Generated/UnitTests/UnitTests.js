@@ -1,16 +1,14 @@
 /// <reference path="LongIntTests.ts"/>
 /// <reference path="../LongRational.ts"/>
 function RunAllTests() {
-    var r = new onCalc.LongRational(-300.665);
-    console.log(r.toString());
-    r = new onCalc.LongRational(300e30);
-    console.log(r.toString());
     try {
         var positive = new Tests.AnySignUnitTests(false);
         positive.numberToString();
         positive.equalNumberAndStringConstruction();
         positive.equalOperatorTrue();
         positive.equalOperatorFalse();
+        positive.notequalOperatorFalse();
+        positive.notequalOperatorTrue();
         positive.addOperator();
         positive.mulOperator();
         var negative = new Tests.AnySignUnitTests(true);
@@ -18,10 +16,13 @@ function RunAllTests() {
         negative.equalNumberAndStringConstruction();
         negative.equalOperatorTrue();
         negative.equalOperatorFalse();
+        negative.notequalOperatorFalse();
+        negative.notequalOperatorTrue();
         negative.addOperator();
         negative.mulOperator();
         var sr = new Tests.signRelatedUnitTests();
         sr.equalOperatorFalse();
+        sr.notequalOperatorTrueNegAndPos();
         sr.lessPosAndPos();
         sr.lessNegAndNeg();
         sr.lessPosAndNeg();
@@ -37,6 +38,8 @@ function RunAllTests() {
         sr.fromReal();
         sr.addOperatorPosAndNeg();
         sr.factorialOperator();
+        sr.bisectionOperator();
+        sr.gcdOperator();
         alert("ALL TESTS PASSED");
     }
     catch (ex) {

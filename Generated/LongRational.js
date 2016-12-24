@@ -74,7 +74,11 @@ var onCalc;
             return this._nominator.negate();
         };
         LongRational.prototype.negative = function () {
-            return this.negative();
+            return this._nominator.negative();
+        };
+        LongRational.prototype.add = function (value) {
+            this._nominator.add(new onCalc.LongInt(value).mul(this._denominator));
+            return this;
         };
         LongRational.prototype.toString = function () {
             if (this._denominator.equal(onCalc.LongInt.one))

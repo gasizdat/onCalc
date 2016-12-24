@@ -3,10 +3,6 @@
 
 function RunAllTests(): void
 {
-    let r = new onCalc.LongRational(-300.665);
-    console.log(r.toString());
-    r = new onCalc.LongRational(300e30);
-    console.log(r.toString());
     try
     {
         let positive = new Tests.AnySignUnitTests(false);
@@ -14,6 +10,8 @@ function RunAllTests(): void
         positive.equalNumberAndStringConstruction();
         positive.equalOperatorTrue();
         positive.equalOperatorFalse();
+        positive.notequalOperatorFalse();
+        positive.notequalOperatorTrue();
         positive.addOperator();
         positive.mulOperator();
 
@@ -22,11 +20,14 @@ function RunAllTests(): void
         negative.equalNumberAndStringConstruction();
         negative.equalOperatorTrue();
         negative.equalOperatorFalse();
+        negative.notequalOperatorFalse();
+        negative.notequalOperatorTrue();
         negative.addOperator();
         negative.mulOperator();
 
         let sr = new Tests.signRelatedUnitTests();
         sr.equalOperatorFalse();
+        sr.notequalOperatorTrueNegAndPos();
 
         sr.lessPosAndPos();
         sr.lessNegAndNeg();
@@ -48,6 +49,9 @@ function RunAllTests(): void
 
         sr.addOperatorPosAndNeg();
         sr.factorialOperator();
+
+        sr.bisectionOperator();
+        sr.gcdOperator();
 
         alert("ALL TESTS PASSED");
     }

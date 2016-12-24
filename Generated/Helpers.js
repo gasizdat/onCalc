@@ -17,13 +17,13 @@ var onCalc;
             var n = d - 1;
             while (((n * d) - (n * n + n - 3)) == 3) {
                 k++;
-                d *= 10;
+                d *= this.decimalRank;
                 n = d - 1;
             }
             this.digitLength = k - 1;
             this.digitAbs = 1;
             for (var i = 0; i < this.digitLength; i++)
-                this.digitAbs *= 10;
+                this.digitAbs *= this.decimalRank;
             //Prepare regexp for spliting string value to tokens 
             this._splitter = new RegExp(".{1," + this.digitLength + "}", "g");
             var zeros = "";

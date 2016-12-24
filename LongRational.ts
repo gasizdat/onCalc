@@ -104,7 +104,13 @@ namespace onCalc
 
         public negative(): boolean
         {
-            return this.negative();
+            return this._nominator.negative();
+        }
+
+        public add(value: LongInt): LongRational
+        {
+            this._nominator.add(new LongInt(value).mul(this._denominator));
+            return this;
         }
 
         public toString(): string

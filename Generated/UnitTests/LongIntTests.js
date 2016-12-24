@@ -13,6 +13,33 @@ var Tests;
         function AnySignUnitTests(negative) {
             return _super.call(this, negative) || this;
         }
+        AnySignUnitTests.prototype.notequalOperatorTrue = function () {
+            var _this = this;
+            var ne = function (x, y) {
+                var lx = _this.longInt(x);
+                var ly = _this.longInt(y);
+                Tests.EXPECT_TRUE(lx.notequal(ly));
+                Tests.EXPECT_TRUE(lx.notequal(ly));
+            };
+            ne("1000", "1001");
+            ne("100500", "100501");
+            ne("7696969768565245576543344890987654", "100");
+            ne("7696969768565245576543344890987654", "4325343543500040504504050054054032040324100");
+            ne("314159265358", "504504050054054032040324100");
+        };
+        AnySignUnitTests.prototype.notequalOperatorFalse = function () {
+            var _this = this;
+            var ne = function (x, y) {
+                var lx = _this.longInt(x);
+                var ly = _this.longInt(y);
+                Tests.EXPECT_FALSE(lx.notequal(ly));
+                Tests.EXPECT_FALSE(lx.notequal(ly));
+            };
+            ne("1000", "1000");
+            ne("100500", "100500");
+            ne("7696969768565245576543344890987654", "7696969768565245576543344890987654");
+            ne("4325343543500040504504050054054032040324100", "4325343543500040504504050054054032040324100");
+        };
         AnySignUnitTests.prototype.numberToString = function () {
             var i = this.longInt(0);
             Tests.EXPECT_EQ(this.str("0"), i.toString());
@@ -150,6 +177,21 @@ var Tests;
             eq("9099990000500000000000000", "1059999999999988760");
             eq("9876543219876543210987654321123456789123456789123456789", "98");
             eq("98765432198765432109876543211234567891234567891234567890000000001", "98765432198765432109876543211234567891234567891234567890000000000");
+        };
+        signRelatedUnitTests.prototype.notequalOperatorTrueNegAndPos = function () {
+            var _this = this;
+            var ne = function (x, y) {
+                var lx = _this.longInt(x);
+                var ly = _this.longInt(y);
+                Tests.EXPECT_TRUE(lx.notequal(ly));
+                Tests.EXPECT_TRUE(lx.notequal(ly));
+            };
+            ne("1000", "-1000");
+            ne("-100500", "100501");
+            ne("-7696969768565245576543344890987654", "100");
+            ne("7696969768565245576543344890987654", "-100");
+            ne("-696969768565245576543344890987654", "4325343543500040504504050054054032040324100");
+            ne("314159265358", "-504504050054054032040324100");
         };
         signRelatedUnitTests.prototype.lessPosAndPos = function () {
             var x = this.longInt(0);
@@ -389,6 +431,21 @@ var Tests;
                 "1468592963895217599993229915608941463976156518286253" +
                 "697920827223758251185210916864000000000000000000000000"), x);
             Tests.EXPECT_THROW(function () { return _this.longInt("-10").factorial(); });
+        };
+        signRelatedUnitTests.prototype.bisectionOperator = function () {
+            var y = this.longInt(711);
+            var x = this.longInt("819727189775468199936");
+            var i = 0;
+            for (; x.notequal(y) && i < 100; i++) {
+                x.bisect();
+            }
+            Tests.EXPECT_EQ(60, i);
+        };
+        signRelatedUnitTests.prototype.gcdOperator = function () {
+            var x = this.longInt(80000000000000000000);
+            var y = this.longInt(40000);
+            var gcd = onCalc.LongInt.gcd(x, y);
+            Tests.EXPECT_EQ(this.longInt(40000), gcd);
         };
         return signRelatedUnitTests;
     }(Tests.UnitTestsBase));

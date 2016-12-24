@@ -211,7 +211,60 @@ namespace onCalc
         {
             this._data.shift();
         }*/
-        
+
+        private static _gcd(x: LongInt, y: LongInt): LongInt
+        {
+/*
+            Very slow algorithm. O(N*log(N)), where N = [x - y]
+            while(x.notequal(y))
+            {
+                if (x.greater(y))
+                    LongInt._absoluteSubFromGreate(x, y);
+                else
+                    LongInt._absoluteSubFromGreate(y, x);
+            }
+            return x;
+*/
+            if (x.equal(y))
+            {
+                return x;
+            }
+            else if(x.equal(LongInt.one) || y.equal(LongInt.one))
+            {
+                return LongInt.one;
+            }
+            else
+            {
+                let x_even = x.isEven();
+                let y_even = y.isEven();
+                if (x_even)
+                {
+                    if (!y_even)
+                    {
+                        return LongInt.gcd(x.bisect(), y); 
+                    }
+                    else
+                    {
+                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two);
+                    }
+                }
+                else if (!y_even)
+                {
+                    return LongInt.gcd(x, y.bisect());
+                }
+                else if(x.greater(y))
+                {
+                    LongInt._absoluteSubFromGreate(x, y);
+                    return LongInt.gcd(x.bisect(), y);
+                }
+                else
+                {
+                    LongInt._absoluteSubFromGreate(y, x);
+                    return LongInt.gcd(y.bisect(), x);
+                }
+            }
+        }
+
         public constructor(readonly value?: LongIntValueType)
         {
             this._initialize(value);
@@ -237,7 +290,7 @@ namespace onCalc
         public notequal(value: LongInt): boolean
         {
             return this._negative !== value._negative || 
-                   this.size() !== value.size() &&
+                   this.size() !== value.size() ||
                    this._data.some((d, i)=> d !== value._data[i]);
         }
 
@@ -428,68 +481,28 @@ namespace onCalc
 
         public bisect(): LongInt
         {
+            let half_rank = LongInt._helper.digitAbs / 2;
             this._data.forEach((v: number, i: number, a: Array<number>)=>
             {
                 if (i > 0 && (v % 2) !== 0)
                 {
-                    a[i - 1] += LongInt._helper.decimalRank / 2;
+                    a[i - 1] += half_rank;
                 }
-                a[i] = v / 2;
+                if (v === 1 && i === (a.length - 1))
+                {
+                    this._data.pop();
+                }
+                else
+                {
+                    a[i] = Math.floor(v / 2);
+                }
             });
             return this;
         }
 
         public static gcd(x: LongInt, y: LongInt): LongInt
         {
-/*
-            Very slow algorithm. O(2(x - y)
-            while(x.notequal(y))
-            {
-                if (x.greater(y))
-                    LongInt._absoluteSubFromGreate(x, y);
-                else
-                    LongInt._absoluteSubFromGreate(y, x);
-            }
-            return x;
-*/
-            if (x.equal(y))
-            {
-                return x;
-            }
-            else if(x.equal(LongInt.one) || y.equal(LongInt.one))
-            {
-                return LongInt.one;
-            }
-            else
-            {
-                let x_even = x.isEven();
-                let y_even = y.isEven();
-                if (x_even)
-                {
-                    if (!y_even)
-                    {
-                        return LongInt.gcd(x.bisect(), y); 
-                    }
-                    else
-                    {
-                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two);
-                    }
-                }
-                else if (!y_even)
-                {
-                    return LongInt.gcd(x, y.bisect());
-                }
-                else if(x.greater(y))
-                {
-                    LongInt._absoluteSubFromGreate(x, y);
-                    return LongInt.gcd(x.bisect(), y);
-                }
-                else
-                {
-                    LongInt._absoluteSubFromGreate(y, x);
-                    return LongInt.gcd(y.bisect(), x);
-                }
-            }
+            return LongInt._gcd(new LongInt(x), new LongInt(y));
         }
 
         public static readonly zero = new LongInt(0);

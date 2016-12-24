@@ -11,6 +11,37 @@ namespace Tests
             super(negative);
         }
 
+        public notequalOperatorTrue()
+        {
+            let ne = (x: string, y: string)=>
+            {
+                let lx = this.longInt(x);
+                let ly = this.longInt(y);
+                EXPECT_TRUE(lx.notequal(ly));
+                EXPECT_TRUE(lx.notequal(ly));                
+            };
+            ne("1000", "1001");
+            ne("100500", "100501");
+            ne("7696969768565245576543344890987654", "100");
+            ne("7696969768565245576543344890987654", "4325343543500040504504050054054032040324100");
+            ne("314159265358", "504504050054054032040324100");
+        }
+
+        public notequalOperatorFalse()
+        {
+            let ne = (x: string, y: string)=>
+            {
+                let lx = this.longInt(x);
+                let ly = this.longInt(y);
+                EXPECT_FALSE(lx.notequal(ly));
+                EXPECT_FALSE(lx.notequal(ly));                
+            };
+            ne("1000", "1000");
+            ne("100500", "100500");
+            ne("7696969768565245576543344890987654", "7696969768565245576543344890987654");
+            ne("4325343543500040504504050054054032040324100", "4325343543500040504504050054054032040324100");
+        }
+
         public numberToString(): void
         {
             let i = this.longInt(0);
@@ -195,6 +226,23 @@ namespace Tests
             eq("9876543219876543210987654321123456789123456789123456789", "98");
             eq("98765432198765432109876543211234567891234567891234567890000000001", 
                "98765432198765432109876543211234567891234567891234567890000000000");
+        }
+
+        public notequalOperatorTrueNegAndPos()
+        {
+            let ne = (x: string, y: string)=>
+            {
+                let lx = this.longInt(x);
+                let ly = this.longInt(y);
+                EXPECT_TRUE(lx.notequal(ly));
+                EXPECT_TRUE(lx.notequal(ly));                
+            };
+            ne("1000", "-1000");
+            ne("-100500", "100501");
+            ne("-7696969768565245576543344890987654", "100");
+            ne("7696969768565245576543344890987654", "-100");
+            ne("-696969768565245576543344890987654", "4325343543500040504504050054054032040324100");
+            ne("314159265358", "-504504050054054032040324100");
         }
 
         public lessPosAndPos(): void
@@ -495,6 +543,27 @@ namespace Tests
             );
 
             EXPECT_THROW( ()=> this.longInt("-10").factorial());
+        }
+
+        public bisectionOperator(): void
+        {
+            let y = this.longInt(711);
+            let x = this.longInt("819727189775468199936");
+            let i = 0;
+            for(; x.notequal(y) && i < 100; i++)
+            {
+                x.bisect();
+            }
+            EXPECT_EQ(60, i)
+
+        }
+
+        public gcdOperator(): void
+        {
+            let x = this.longInt(80000000000000000000);
+            let y = this.longInt(40000);
+            let gcd = onCalc.LongInt.gcd(x, y);
+            EXPECT_EQ(this.longInt(40000), gcd);
         }
     }
 }

@@ -18,13 +18,13 @@ namespace onCalc
             while(((n*d) - (n*n + n - 3)) == 3)
             {
                 k++;
-                d *= 10;
+                d *= this.decimalRank;
                 n = d - 1;
             }
             this.digitLength = k - 1;
             this.digitAbs = 1;
             for(let i: number = 0; i < this.digitLength; i++)
-                this.digitAbs *= 10;
+                this.digitAbs *= this.decimalRank;
             //Prepare regexp for spliting string value to tokens 
             this._splitter = new RegExp(".{1," + this.digitLength + "}", "g");
             let zeros: string = "";
