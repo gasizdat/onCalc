@@ -187,14 +187,14 @@ var onCalc;
                 var y_even = y.isEven();
                 if (x_even) {
                     if (!y_even) {
-                        return LongInt.gcd(x.bisect(), y);
+                        return LongInt.gcd(x.bisect(), y); //x - even, y - odd
                     }
                     else {
-                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two);
+                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two); //x- even, y - even
                     }
                 }
-                else if (!y_even) {
-                    return LongInt.gcd(x, y.bisect());
+                else if (y_even) {
+                    return LongInt.gcd(x, y.bisect()); //x - odd, y - even
                 }
                 else if (x.greater(y)) {
                     LongInt._absoluteSubFromGreate(x, y);

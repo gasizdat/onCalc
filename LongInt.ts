@@ -241,23 +241,23 @@ namespace onCalc
                 {
                     if (!y_even)
                     {
-                        return LongInt.gcd(x.bisect(), y); 
+                        return LongInt.gcd(x.bisect(), y); //x - even, y - odd
                     }
                     else
                     {
-                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two);
+                        return LongInt.gcd(x.bisect(), y.bisect()).mul(LongInt.two); //x- even, y - even
                     }
                 }
-                else if (!y_even)
+                else if (y_even)
                 {
-                    return LongInt.gcd(x, y.bisect());
+                    return LongInt.gcd(x, y.bisect());//x - odd, y - even
                 }
-                else if(x.greater(y))
+                else if(x.greater(y)) //x - odd, y - odd, x > y
                 {
                     LongInt._absoluteSubFromGreate(x, y);
                     return LongInt.gcd(x.bisect(), y);
                 }
-                else
+                else  //x - odd, y - odd, x < y
                 {
                     LongInt._absoluteSubFromGreate(y, x);
                     return LongInt.gcd(y.bisect(), x);

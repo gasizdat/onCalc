@@ -182,7 +182,7 @@ namespace Tests
             {
                 y.mul(x);
             }
-            console.log("5433298776 to the 20th power at " + super.stopWatchStop().toString() + " ms");
+            console.log(`5433298776 to the 20th power at ${super.stopWatchStop().toString()} ms`);
             EXPECT_EQ(this.longInt("502657016439618253936552706323987501462044462964350" +
                                    "812061079995281026604246661831456686060326362690004" +
                                    "0919171814301248338843990986237094445425150910346005" + 
@@ -562,10 +562,17 @@ namespace Tests
 
         public gcdOperator(): void
         {
-            let x = this.longInt(80000000000000000000);
-            let y = this.longInt(40000);
+            let x = this.longInt(30);
+            let y = this.longInt(15);
             let gcd = onCalc.LongInt.gcd(x, y);
-            EXPECT_EQ(this.longInt(40000), gcd);
+            EXPECT_EQ(this.longInt(15), gcd);
+            x = this.longInt(80000000000000000000);
+            y = this.longInt(40000);
+            gcd = onCalc.LongInt.gcd(x, y);
+            x = this.longInt("8545874584674695476540564584605489604966");
+            y = this.longInt("805208543089460285640856409856");
+            gcd = onCalc.LongInt.gcd(x, y);
+            EXPECT_EQ(this.longInt(6), gcd);
         }
     }
 }
