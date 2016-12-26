@@ -41,8 +41,10 @@ namespace onCalc
         public readonly naturalSeparator = ":";
         public readonly negativeSign = (-1).toLocaleString().charAt(0);
         public readonly leadingZeros: string[];
-        public readonly digitAbs: number; //Absolute value of LongInt digit.
-        public readonly digitLength: number; //String length, for representation one digit (use in parse method)
+        /** Absolute value of LongInt digit. **/
+        public readonly digitAbs: number;
+        /** String length, for representation one digit (use in parse method) **/
+        public readonly digitLength: number;
         public tokenize(value: string): Array<string>
         {
             let head_size = value.length % this.digitLength;

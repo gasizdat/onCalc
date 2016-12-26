@@ -199,6 +199,8 @@ namespace onCalc
             }
         }
 
+        /** Fastest multiplication by LongHelper.digitAbs ^ digits, complexity O(digits) 
+         *  @param digits A exponent of 10. */
         private _absoluteShiftUp(digits: number): void
         {
             while(digits--)
@@ -207,9 +209,13 @@ namespace onCalc
             }
         }
 
-        /*private _absoluteShiftDown(): void
+        /** Fastest division by LongHelper.digitAbs ^ digits, complexity O(digits) */
+        /*private _absoluteShiftDown(digits: number): void
         {
-            this._data.shift();
+            while(digits--)
+            {
+                this._data.shift();
+            }
         }*/
 
         private static _gcd(x: LongInt, y: LongInt): LongInt
@@ -263,6 +269,19 @@ namespace onCalc
                     return LongInt.gcd(y.bisect(), x);
                 }
             }
+        }
+
+        /** Returns exponent of 10 for this long integer value */
+        private _exponent(): number
+        {
+            let s = this.size() - 1;
+            let e = s * LongInt._helper.digitAbs;
+            let last = this._data[s];
+            for (--e; last; ++e)
+            {
+                last = Math.floor(last / LongInt._helper.decimalRank);
+            }
+            return e;
         }
 
         public constructor(readonly value?: LongIntValueType)
@@ -419,6 +438,80 @@ namespace onCalc
             return this;
         }
 
+        /** Fastest division by 2 (bisection), complexity O(size()) */
+        public bisect(): LongInt
+        {
+            let half_rank = LongInt._helper.digitAbs / 2;
+            this._data.forEach((v: number, i: number, a: Array<number>)=>
+            {
+                if (i > 0 && (v % 2) !== 0)
+                {
+                    a[i - 1] += half_rank;
+                }
+                if (v === 1 && i === (a.length - 1))
+                {
+                    this._data.pop();
+                }
+                else
+                {
+                    a[i] = Math.floor(v / 2);
+                }
+            });
+            return this;
+        }
+
+        public div(value: LongInt): LongInt
+        {
+            let c = this._absoluteComparison(value);
+            if (c > 0)
+            {
+                let pow = this._exponent() - value._exponent();
+                let shift_up_exp = (long_int: LongInt, exponent: number)=>
+                {
+                    long_int._absoluteShiftUp(Math.floor(exponent / LongInt._helper.digitAbs));
+                    let sub_digit = exponent % LongInt._helper.digitAbs;
+                    if (sub_digit)
+                    {
+                        let e = 1;
+                        while(sub_digit--)
+                        {
+                            e *= LongInt._helper.decimalRank;
+                        }
+                        long_int.mul(new LongInt(sub_digit));
+                    }
+                };
+                let quotient = new LongInt(0);
+                do
+                {
+                    let divider = new LongInt(value);
+                    if(pow > 1)
+                        shift_up_exp(divider, pow - 1);
+                    var r = 0;
+                    for(; this.greaterOrEqual(divider); r++)
+                        this._absoluteSub(divider);
+                    let remainder = new LongInt(r);
+                    if (pow)
+                    {
+                        shift_up_exp(remainder, pow - 1);
+                    }
+                    quotient._absoluteAdd(remainder);
+                    pow--;
+                }
+                while(pow > 0 && this.notequal(LongInt.zero));
+//quotient, this - remainder
+                throw new Error("Not yet implemented");                
+            }
+            if (c === 0)
+            {
+                this._initialize(LongInt.one);
+            }
+            else
+            {
+                this._initialize(LongInt.zero);
+            }
+            return this;
+        }
+
         public factorial(): LongInt
         {
             if (this._negative)
@@ -477,27 +570,6 @@ namespace onCalc
         public isEven(): boolean
         {
             return (this._data[0] % 2) === 0;
-        }
-
-        public bisect(): LongInt
-        {
-            let half_rank = LongInt._helper.digitAbs / 2;
-            this._data.forEach((v: number, i: number, a: Array<number>)=>
-            {
-                if (i > 0 && (v % 2) !== 0)
-                {
-                    a[i - 1] += half_rank;
-                }
-                if (v === 1 && i === (a.length - 1))
-                {
-                    this._data.pop();
-                }
-                else
-                {
-                    a[i] = Math.floor(v / 2);
-                }
-            });
-            return this;
         }
 
         public static gcd(x: LongInt, y: LongInt): LongInt

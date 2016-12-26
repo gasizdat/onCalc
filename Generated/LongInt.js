@@ -155,14 +155,20 @@ var onCalc;
                 LongInt._absoluteSubFromGreate(this, value);
             }
         };
+        /** Fastest multiplication by 10^digits, complexity O(digits)
+         *  @param digits A exponent of 10. */
         LongInt.prototype._absoluteShiftUp = function (digits) {
             while (digits--) {
                 this._data.unshift(0);
             }
         };
-        /*private _absoluteShiftDown(): void
+        /** Fastest division by 10^digits, complexity O(digits) */
+        /*private _absoluteShiftDown(digits: number): void
         {
-            this._data.shift();
+            while(digits--)
+            {
+                this._data.shift();
+            }
         }*/
         LongInt._gcd = function (x, y) {
             /*
@@ -205,6 +211,16 @@ var onCalc;
                     return LongInt.gcd(y.bisect(), x);
                 }
             }
+        };
+        /** Returns exponent of 10 for this long integer value */
+        LongInt.prototype._exponent = function () {
+            var s = this.size() - 1;
+            var e = s * LongInt._helper.digitAbs;
+            var last = this._data[s];
+            for (; last; e++) {
+                last = Math.floor(last / LongInt._helper.decimalRank);
+            }
+            return e;
         };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
@@ -315,6 +331,36 @@ var onCalc;
             this._negative = this._negative !== value._negative;
             return this;
         };
+        /** Fastest division by 2 (bisection), complexity O(size()) */
+        LongInt.prototype.bisect = function () {
+            var _this = this;
+            var half_rank = LongInt._helper.digitAbs / 2;
+            this._data.forEach(function (v, i, a) {
+                if (i > 0 && (v % 2) !== 0) {
+                    a[i - 1] += half_rank;
+                }
+                if (v === 1 && i === (a.length - 1)) {
+                    _this._data.pop();
+                }
+                else {
+                    a[i] = Math.floor(v / 2);
+                }
+            });
+            return this;
+        };
+        LongInt.prototype.div = function (value) {
+            var c = this._absoluteComparison(value);
+            if (c > 0) {
+                throw new Error("Not yet implemented");
+            }
+            if (c === 0) {
+                this._initialize(LongInt.one);
+            }
+            else {
+                this._initialize(LongInt.zero);
+            }
+            return this;
+        };
         LongInt.prototype.factorial = function () {
             if (this._negative)
                 throw new EvalError("factorial(n) determined for natural numbers only!");
@@ -356,22 +402,6 @@ var onCalc;
         };
         LongInt.prototype.isEven = function () {
             return (this._data[0] % 2) === 0;
-        };
-        LongInt.prototype.bisect = function () {
-            var _this = this;
-            var half_rank = LongInt._helper.digitAbs / 2;
-            this._data.forEach(function (v, i, a) {
-                if (i > 0 && (v % 2) !== 0) {
-                    a[i - 1] += half_rank;
-                }
-                if (v === 1 && i === (a.length - 1)) {
-                    _this._data.pop();
-                }
-                else {
-                    a[i] = Math.floor(v / 2);
-                }
-            });
-            return this;
         };
         LongInt.gcd = function (x, y) {
             return LongInt._gcd(new LongInt(x), new LongInt(y));
