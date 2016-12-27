@@ -1,5 +1,6 @@
 /// <reference path="Helpers.ts"/>
 /// <reference path="Interfaces.ts"/>
+/// <reference path="LongRational.ts"/>
 
 namespace onCalc
 {    
@@ -271,17 +272,27 @@ namespace onCalc
             }
         }
 
-        /** Returns exponent of 10 for this long integer value */
-        private _exponent(): number
+        private _divNumber(value: number): LongInt
         {
-            let s = this.size() - 1;
-            let e = s * LongInt._helper.digitAbs;
-            let last = this._data[s];
-            for (--e; last; ++e)
+            let result = new Array<number>();
+            let carriage: number = 0;
+            for (let i = (this.size() - 1); i >= 0; i--)
             {
-                last = Math.floor(last / LongInt._helper.decimalRank);
-            }
-            return e;
+                let n = carriage * LongInt._helper.digitAbs + this._data[i];
+                if (n > value)
+                {
+                    result.push(Math.floor(n / value));
+                    carriage = n % value;
+                }
+                else
+                {
+                    if (result.length)
+                        result.push(0);
+                    carriage = n;
+                }
+            }           
+            this._data = result.reverse();
+            return this;
         }
 
         public constructor(readonly value?: LongIntValueType)
@@ -465,50 +476,18 @@ namespace onCalc
             let c = this._absoluteComparison(value);
             if (c > 0)
             {
-                let pow = this._exponent() - value._exponent();
-                let shift_up_exp = (long_int: LongInt, exponent: number)=>
-                {
-                    long_int._absoluteShiftUp(Math.floor(exponent / LongInt._helper.digitAbs));
-                    let sub_digit = exponent % LongInt._helper.digitAbs;
-                    if (sub_digit)
-                    {
-                        let e = 1;
-                        while(sub_digit--)
-                        {
-                            e *= LongInt._helper.decimalRank;
-                        }
-                        long_int.mul(new LongInt(sub_digit));
-                    }
-                };
-                let quotient = new LongInt(0);
-                do
-                {
-                    let divider = new LongInt(value);
-                    if(pow > 1)
-                        shift_up_exp(divider, pow - 1);
-                    var r = 0;
-                    for(; this.greaterOrEqual(divider); r++)
-                        this._absoluteSub(divider);
-                    let remainder = new LongInt(r);
-                    if (pow)
-                    {
-                        shift_up_exp(remainder, pow - 1);
-                    }
-                    quotient._absoluteAdd(remainder);
-                    pow--;
-                }
-                while(pow > 0 && this.notequal(LongInt.zero));
-//quotient, this - remainder
-                throw new Error("Not yet implemented");                
+                if (value.size() === 1)
+                    this._divNumber(value._data[0]);
             }
-            if (c === 0)
+            else if (c === 0) //this == value
             {
                 this._initialize(LongInt.one);
             }
-            else
+            else //this < value
             {
                 this._initialize(LongInt.zero);
             }
+            this._negative = this._negative !== value._negative;
             return this;
         }
 

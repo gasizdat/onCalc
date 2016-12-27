@@ -11,6 +11,7 @@ function RunAllTests() {
         positive.notequalOperatorTrue();
         positive.addOperator();
         positive.mulOperator();
+        positive.divOperator();
         var negative = new Tests.AnySignUnitTests(true);
         negative.numberToString();
         negative.equalNumberAndStringConstruction();
@@ -20,6 +21,7 @@ function RunAllTests() {
         negative.notequalOperatorTrue();
         negative.addOperator();
         negative.mulOperator();
+        negative.divOperator();
         var sr = new Tests.signRelatedUnitTests();
         sr.equalOperatorFalse();
         sr.notequalOperatorTrueNegAndPos();

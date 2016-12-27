@@ -188,6 +188,18 @@ namespace Tests
                                    "0919171814301248338843990986237094445425150910346005" + 
                                    "22312044753658643996655611309612781797376"), y);
         }
+
+        public divOperator(): void
+        {
+            let x = this.longInt("4096");
+            let y = this.longInt("512");
+            x.div(y);
+            EXPECT_EQ(new onCalc.LongInt("8"), x);
+            x = this.longInt("108568693935259541412802901921674403866301052111504000000000000001565607923435309810290848");
+            y = this.longInt("4533456");
+            x.div(y);
+            EXPECT_EQ(new onCalc.LongInt("23948328589768940387378393420312098290200909000000000000000000000345345344354353458"), x);
+        }
     }
 
     export class signRelatedUnitTests extends UnitTestsBase

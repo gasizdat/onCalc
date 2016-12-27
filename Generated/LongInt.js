@@ -1,5 +1,6 @@
 /// <reference path="Helpers.ts"/>
 /// <reference path="Interfaces.ts"/>
+/// <reference path="LongRational.ts"/>
 var onCalc;
 (function (onCalc) {
     //The BCD-like "unlimited" long integer number
@@ -155,14 +156,14 @@ var onCalc;
                 LongInt._absoluteSubFromGreate(this, value);
             }
         };
-        /** Fastest multiplication by 10^digits, complexity O(digits)
+        /** Fastest multiplication by LongHelper.digitAbs ^ digits, complexity O(digits)
          *  @param digits A exponent of 10. */
         LongInt.prototype._absoluteShiftUp = function (digits) {
             while (digits--) {
                 this._data.unshift(0);
             }
         };
-        /** Fastest division by 10^digits, complexity O(digits) */
+        /** Fastest division by LongHelper.digitAbs ^ digits, complexity O(digits) */
         /*private _absoluteShiftDown(digits: number): void
         {
             while(digits--)
@@ -212,15 +213,23 @@ var onCalc;
                 }
             }
         };
-        /** Returns exponent of 10 for this long integer value */
-        LongInt.prototype._exponent = function () {
-            var s = this.size() - 1;
-            var e = s * LongInt._helper.digitAbs;
-            var last = this._data[s];
-            for (; last; e++) {
-                last = Math.floor(last / LongInt._helper.decimalRank);
+        LongInt.prototype._divNumber = function (value) {
+            var result = new Array();
+            var carriage = 0;
+            for (var i = (this.size() - 1); i >= 0; i--) {
+                var n = carriage * LongInt._helper.digitAbs + this._data[i];
+                if (n > value) {
+                    result.push(Math.floor(n / value));
+                    carriage = n % value;
+                }
+                else {
+                    if (result.length)
+                        result.push(0);
+                    carriage = n;
+                }
             }
-            return e;
+            this._data = result.reverse();
+            return this;
         };
         LongInt.prototype.assigned = function (value) {
             this._initialize(value);
@@ -351,14 +360,16 @@ var onCalc;
         LongInt.prototype.div = function (value) {
             var c = this._absoluteComparison(value);
             if (c > 0) {
-                throw new Error("Not yet implemented");
+                if (value.size() === 1)
+                    this._divNumber(value._data[0]);
             }
-            if (c === 0) {
+            else if (c === 0) {
                 this._initialize(LongInt.one);
             }
             else {
                 this._initialize(LongInt.zero);
             }
+            this._negative = this._negative !== value._negative;
             return this;
         };
         LongInt.prototype.factorial = function () {
